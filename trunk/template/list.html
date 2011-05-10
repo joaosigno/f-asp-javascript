@@ -1,0 +1,10 @@
+{include file="page_start.html"}
+
+{foreach $posts as $p}
+<a href="/?r=view&id={$p.articleid||0}">{$p.title||'无标题'}</a> <br>
+{/foreach}
+
+
+{include file="page_end.html"}
+
+
