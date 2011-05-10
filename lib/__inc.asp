@@ -32,7 +32,7 @@ var echo = function(){
 };
 
 var die = function(){
-    print.apply(this, arguments);
+    echo.apply(this, arguments);
     Response.End();
 };
 
