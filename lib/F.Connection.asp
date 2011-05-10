@@ -14,6 +14,7 @@ F.Connection.prototype = {
             this._connection.ConnectionString = this._connectionString;
             this._connection.Open();
             this._isOpen = true;
+            return this;
         }catch(e){
             throw new Error('Connection open Error!');
         }

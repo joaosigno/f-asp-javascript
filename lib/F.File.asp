@@ -8,7 +8,7 @@ F.File = function(filename){
 
 F.File.prototype = {
     getFileName: function(){
-        return this.fso.GetFileName(this.filename);
+        return this.fso.GetFileName(this.path);
     },
 
     getFileType: function(){
@@ -75,9 +75,11 @@ F.File.prototype = {
     },
 
     getText: function(charset){
+        if(!this.exist()){
+            return '';
+        }
         var s = new ActiveXObject("ADODB.Stream"), str;
         s.Type = 2;
-        s.Mode = 3;
         s.CharSet = charset || 'utf-8';
         s.Open();
         s.LoadFromFile(this.path);
@@ -92,16 +94,24 @@ F.File.prototype = {
         var s = new ActiveXObject("ADODB.Stream");
         s.Type = 1;
         s.Open();
-        content = s.LoadFromFile(this.path);
+        s.LoadFromFile(this.path);
+        content = s.Read();
         s.Close();
         s = null;
         return content;
     },
 
+    getBase64String: function(){
+        var xml = new ActiveXObject('Microsoft.XMLDOM');
+        xml.loadXML('<r xmlns:dt="urn:schemas-microsoft-com:datatypes"><e dt:dt="bin.base64"></e></r>');
+        var f = xml.documentElement.selectSingleNode('e');
+        f.nodeTypedValue = this.getBinary();
+        return f.text;
+    },
+
     setText: function(text, charset){
         var s = new ActiveXObject("ADODB.Stream");
         s.Type = 2;
-        s.Mode = 2;
         s.Charset = charset || 'utf-8';
         s.Open();
         s.WriteText(text);
@@ -113,7 +123,6 @@ F.File.prototype = {
     setBinary: function(content){
         var s = new ActiveXObject("ADODB.Stream");
         s.Type = 1;
-        s.Mode = 2;
         s.Open();
         s.Write(content);
         s.SaveToFile(this.path, 2);
@@ -121,16 +130,26 @@ F.File.prototype = {
         s = null;
     },
 
-    appendText: function(text){
-        var f = this.fso.OpenTextFile(this.path, 8, true);
-        f.Write(text);
-        f.close();
+    setBase64String: function(str64){
+        var xml = new ActiveXObject('Microsoft.XMLDOM');
+        xml.loadXML('<r xmlns:dt="urn:schemas-microsoft-com:datatypes"><e dt:dt="bin.base64"></e></r>');
+        var f = xml.documentElement.selectSingleNode('e');
+        f.text = str64;
+        this.setBinary(f.nodeTypedValue);
         f = null;
+        xml = null;
+    },
+
+    /**
+    * 向文本文件中追加文本。只适合小文件
+    */
+    appendText: function(text, charset){
+        var content = this.getText();
+        this.setText(content + text, charset);
     },
 
     setPath: function(path){
         this.path = (path.indexOf(':') > -1) ? path : Server.MapPath(path);
-        this.filename = this.getFileName(this.path);
     },
 
     exist: function(path){
