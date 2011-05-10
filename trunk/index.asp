@@ -1,13 +1,12 @@
 ﻿<!--#include file="lib\__inc.asp"-->
 <%
 
-var db = new F.MsJetConnection('data.mdb');
-db.open();
-log(db.getJson('select * from code'));
+var db = new F.MsJetConnection('data.mdb').open();
+echo(db.getHtmlTable('learning'));
 db.close();
 
 
-//log(new Date().getTime() - START)
+log(new Date().getTime() - START)
 
 
 

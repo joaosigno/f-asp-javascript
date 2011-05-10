@@ -2157,9 +2157,11 @@ JSZip.compressions["DEFLATE"] = {
 
 
 ////////   对JSZip引用  /////////
-
+/**
+* Zip类，虽然可以运行。但实际上不实用。压缩需要时间太长。保存到文件太费时间。
+*/
 F.Zip = function(){
-    this.zip = new JSZip();
+    this.zip = new JSZip('DEFLATE');
 };
 
 F.Zip.prototype = {
@@ -2190,19 +2192,17 @@ F.Zip.prototype = {
         return this.zip.generate(asBytes);
     },
 
+    //path必须是相对路径
     addFile: function(path){
         var file = new F.File(path);
-        var b64 = F.string.base64Encode(file.getText());
-        return this.add(file.getFileName(), b64, {base64:true});
+        return this.add(path, file.getBase64String(), {base64:true});
     },
 
+    //将zip文件保存到文件
     saveToFile: function(name){
         var content = this.generate();
-        var xml = new ActiveXObject('Microsoft.XMLDOM');
-        xml.loadXML('<r xmlns:dt="urn:schemas-microsoft-com:datatypes"><e dt:dt="bin.base64">' + content + '</e></r>');
-        var binary = xml.documentElement.selectSingleNode('e').nodeTypedvalue;
         var file = new F.File(name);
-        file.setBinary(binary);
+        file.setBase64String(content);
     }
 };
 
