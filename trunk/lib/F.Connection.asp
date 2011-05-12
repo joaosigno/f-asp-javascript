@@ -29,6 +29,7 @@ F.Connection.prototype = {
             this._connection.Close();
             this._connection = null;
             this._isOpen = false;
+            return this;
         }catch(e){
             throw new Error('Connection close Error!');
         }
