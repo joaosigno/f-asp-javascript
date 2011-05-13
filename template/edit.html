@@ -1,0 +1,18 @@
+{include file="page_start.html"}
+
+<form action="/?r=edit" method="post">
+
+    <div>
+        标题：<input type="text" name="title" value="{$post.title}" />
+    </div>
+    <div>
+        内容：<textarea name="content" rows="8" cols="40">{$post.content}</textarea>
+    </div>
+
+    <input type="hidden" name="id" value="{$post.articleid}" />
+    <input type="submit" value="提交" />
+</form>
+
+{include file="page_end.html"}
+
+
