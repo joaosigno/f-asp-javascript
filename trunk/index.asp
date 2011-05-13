@@ -1,7 +1,6 @@
 ﻿<!--#include file="lib\__inc.asp"-->
 <!--#include file="F.controller.asp"-->
 <%
-
 var r = F.get('r') || 'index';
 
 if(r in F.controller){
@@ -10,7 +9,7 @@ if(r in F.controller){
     die('Error!');
 }
 
-//log(new Date().getTime() - START)
+log(new Date().getTime() - START)
 // vim:ft=javascript
 %>
 
