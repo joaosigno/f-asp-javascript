@@ -83,8 +83,10 @@ F.Connection.prototype = {
         rs.Close();
     },
 
-    update: function(sql, values){
-        var rs = this.getRecordSet(sql, 2, 3);
+    update: function(rs, values){
+        if(typeof rs == 'string'){
+            rs = this.getRecordSet(rs, 2, 3);
+        }
         while(!rs.Eof){
             for(var i in values){
                 rs(i) = values[i];
