@@ -119,18 +119,32 @@ F.trim = function(text){
 
 ////////  asp ////////
 
+//获取url参数
 F.get = function(key){
     return Request.QueryString(key).Item;
 };
 
+//获取post参数
 F.post = function(key){
     return Request.Form(key).Item;
 };
 
+//获取server参数
 F.server = function(key){
     return Request.ServerVariables(key).Item;
 };
 
+//是否是get请求
+F.isGet = function(){
+    return F.server("REQUEST_METHOD").toLowerCase() === 'get';
+};
+
+//是否是post请求
+F.isPost = function(){
+    return F.server("REQUEST_METHOD").toLowerCase() === 'post';
+};
+
+//获取ip地址
 F.ip = function(){
     var proxy = F.server("HTTP_X_FORWARDED_FOR"),
     ip = proxy && proxy.indexOf("unknown") != -1 ? proxy.split(/,;/g)[0] : F.server("REMOTE_ADDR");
@@ -138,6 +152,7 @@ F.ip = function(){
     return "::1" === ip ? "127.0.0.1" : ip;
 };
 
+//生成guid
 F.guid = function(){
     var scriptletTypelib = new ActiveXObject("Scriptlet.Typelib");
     var value = scriptletTypelib.Guid.substring(0,38);
@@ -145,14 +160,17 @@ F.guid = function(){
     return value;
 };
 
+//进行html转意
 F.encodeHTML = function(text){
     return Server.HTMLEncode(text);
 };
 
+//url转向
 F.go = function(url){
     Response.Redirect(url);
 };
 
+//增加header
 F.header = function(key, value){
     Response.AddHeader(key, value);
 };
