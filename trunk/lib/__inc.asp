@@ -49,7 +49,9 @@ var assign = function(key, value){
 
 var display = function(tpl, data){
     var str = new F.File(tpl).getText();
-    echo(str.fetch(data || __template_data));
+    var html = str.fetch(data || __template_data);
+    echo(html);
+    return html;
 };
 
 //为smarty插件配置include
