@@ -1,7 +1,10 @@
 {include file="page_start.html"}
 
 <h1>{$post.title}</h1>
-<div><a href="/?r=edit&id={$post.articleid}">编辑</a></div>
+<div>
+    <a href="/?a=list">列表页</a>
+    <a href="/?a=edit&id={$post.articleid}">编辑</a>
+</div>
 <div>{$post.content}</div>
 
 
