@@ -156,6 +156,11 @@ F.File.prototype = {
         return this.fso.FileExists(path || this.path);
     },
 
+    //删除文件，如果传入path，path最后可以是通配符
+    remove: function(path){
+        this.fso.DeleteFile(path || this.path, true);
+    },
+
     getExtensionName: function(path){
         return this.fso.GetExtensionName(path || this.path);
     },

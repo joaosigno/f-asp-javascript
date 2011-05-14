@@ -12,31 +12,45 @@ F.controller.site = {
 
     //列表页
     list:function(){
-        var db = new F.MsJetConnection('data.mdb').open();
-        var posts = db.getJson('select top 10 * from learning');
-        var m = db.model('learning');
-        //log(m.find())
+        if(F.cache.existFile()){
+            die(F.cache.getFile());
+        }
+
+        var db = this._openDb();
+        var model = db.model('learning');
+
+        var posts = model.findAll();
         db.close();
+
         assign('page_title', '列表页');
         assign('posts', posts);
-        display('template/list.html');
+
+        var cache = display('template/list.html');
+        F.cache.setFile(cache);
     },
 
     //查看文章
     view : function(){
+        if(F.cache.existFile()){
+            die(F.cache.getFile());
+        }
+
         var id = parseInt(F.get('id'));
         if(isNaN(id)) die('错误参数');
 
-        var db = new F.MsJetConnection('data.mdb').open();
-        var posts = db.getJson('select * from learning where articleid={$id}'.fetch({id:id}));
+        var db = this._openDb();
+        var model = db.model('learning');
+
+        var post = model.find(id);
         db.close();
 
-        if(posts.length == 0)
+        if(!post)
             die('没有此文');
         else{
-            assign('page_title', posts[0].title);
-            assign('post', posts[0]);
-            display('template/view.html');
+            assign('page_title', post.title);
+            assign('post', post);
+            var cache = display('template/view.html');
+            F.cache.setFile(cache);
         }
     },
 
@@ -44,28 +58,31 @@ F.controller.site = {
     edit : function(){
         var id = parseInt(F.get('id') || F.post('id'));
         if(isNaN(id)) die('错误参数');
-        var db = new F.MsJetConnection('data.mdb').open();
+
+        var db = this._openDb();
+        var model = db.model('learning');
 
         if(F.isPost()){
-            db.update('select * from learning where articleid={$id}'.fetch({id:id}),{
+            model.update(id,{
                 title: F.post('title'),
                 content:F.post('content')
             });
             db.close();
             F.go('/?a=view&id=' + id);
         }else{
-            var posts = db.getJson('select * from learning where articleid={$id}'.fetch({id:id}));
-            if(posts.length == 0)
-                die('没有此文');
+            var post = model.find(id);
             db.close();
-            assign('page_title', posts[0].title);
-            assign('post', posts[0]);
+            if(!post)
+                die('没有此文');
+            assign('page_title', post.title);
+            assign('post', post);
             display('template/edit.html');
         }
     },
 
-    _private: function(){
-        log('Error to see this');
+    _openDb: function(){
+        var db = new F.MsJetConnection('data.mdb').open();
+        return db;
     }
 };
 

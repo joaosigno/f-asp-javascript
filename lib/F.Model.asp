@@ -6,17 +6,24 @@ F.Model = function(tableName, connection){
     this.connection = connection;
     //获取schema约束条件
     this._constraints = [null, null, this.tableName];
+    //主键
+    this._primaryKey = null;
 };
 
 F.Model.prototype = {
 
     //获取表的主键
     pk: function(){
-        var rs = this.connection.getSchema(28, this._constraints);
-        if(rs.Eof){
-            return undefined;
+        if(this._primaryKey){
+            return this._primaryKey;
         }else{
-            return rs('COLUMN_NAME').Value;
+            var rs = this.connection.getSchema(28, this._constraints);
+            if(rs.Eof){
+                return null;
+            }else{
+                this._primaryKey = rs('COLUMN_NAME').Value;
+                return this._primaryKey;
+            }
         }
     },
 
@@ -60,7 +67,8 @@ F.Model.prototype = {
 
     //查找一个符合条件的数据
     find: function(where, fields, order){
-        return this.findAll(where, fields, order, 1);
+        var r = this.findAll(where, fields, order, 1);
+        return r.length == 1 ? r[0] : null;
     },
 
     //插入数据
@@ -91,6 +99,8 @@ F.Model.prototype = {
             where = '';
         }else if(F.isArray(where)){
             where = where.join(' and ');
+        }else if(F.isNumber(where)){
+            where = this.pk() + '=' + where; 
         }
         return where === '' ? '' : ' where ' + where;
     }

@@ -4,6 +4,7 @@
 var controller = F.get('r') || 'site';
 var action = F.get('a') || 'index';
 
+
 if(controller in F.controller){
     if(action in F.controller[controller] && action.substring(0,1) !== '_'){
         F.controller[controller][action]();
@@ -16,6 +17,7 @@ if(controller in F.controller){
 
 log(F.url());
 log(new Date().getTime() - START)
+
 // vim:ft=javascript
 %>
 
