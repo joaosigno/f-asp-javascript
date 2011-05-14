@@ -16,6 +16,7 @@ var START = new Date().getTime();
 <!--#include file="F.Connection.asp"-->
 <!--#include file="F.MsJetConnection.asp"-->
 <!--#include file="F.ExcelConnection.asp"-->
+<!--#include file="F.Model.asp"-->
 <%
 Response.Charset="utf8";
 Session.CodePage=65001;

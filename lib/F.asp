@@ -175,5 +175,14 @@ F.header = function(key, value){
     Response.AddHeader(key, value);
 };
 
+//页面本身url
+F.url = function(){
+    var port = F.server('SERVER_PORT');
+    var server = F.server('SERVER_NAME');
+    var url = F.server('URL'), query = F.server('QUERY_STRING');
+    return (port == '443' ? 'https://' : 'http://') + server + 
+        ((port=="80"||port=="443")?"":":"+port)+url+(query===''?'':'?'+query);
+};
+
 // vim:ft=javascript
 %>
