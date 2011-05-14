@@ -3,7 +3,6 @@ F.namespace('F.controller');
 
 //  /index.asp?r=site&a=xxx
 F.controller.site = {
-
     //首页
     index : function(){
         assign('page_title', '首页');
@@ -12,9 +11,7 @@ F.controller.site = {
 
     //列表页
     list:function(){
-        if(F.cache.existFile()){
-            die(F.cache.getFile());
-        }
+        this._checkCache();
 
         var db = this._openDb();
         var model = db.model('learning');
@@ -31,9 +28,7 @@ F.controller.site = {
 
     //查看文章
     view : function(){
-        if(F.cache.existFile()){
-            die(F.cache.getFile());
-        }
+        this._checkCache();
 
         var id = parseInt(F.get('id'));
         if(isNaN(id)) die('错误参数');
@@ -83,6 +78,12 @@ F.controller.site = {
     _openDb: function(){
         var db = new F.MsJetConnection('data.mdb').open();
         return db;
+    },
+
+    _checkCache: function(){
+        if(F.cache.existFile()){
+            die(F.cache.getFile());
+        }
     }
 };
 
