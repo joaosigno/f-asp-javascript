@@ -111,6 +111,30 @@ F.addMethods = function(obj_methods) {
 	F.extend(F, obj_methods);
 };
 
+//打印F的结构
+F.desc = function(){
+    function desc(json, pre){
+        var html = ['<ul class="F_DESC">'];
+        for(var i in json){
+            var key = pre + '.' + (i.indexOf('.') !== -1 ? '&lt;' + i + '&gt;' : i);
+            html.push('<li><b>' + key + '</b><span>' + 
+                (typeof(json[i]) === 'function' ?
+                json[i].toString().match(/function\s*\([^)]*?\)/) || 'function(...)' : typeof json[i]) + 
+            '</span></li>');
+            if(typeof json[i] === 'object' && json[i] !== this){
+                html.push(desc(json[i], key));
+            }else if(typeof json[i] === 'function'){
+                html.push(desc(json[i].prototype, key + '.prototype'));
+            }
+        }
+        html.push('</ul>');
+        return html.join('');
+    }
+    var style = '<style>.F_DESC b{font:14px/18px Consolas,Monaco,"Courier New"}'+
+        '.F_DESC span{color:#0BAD03;font-size:13px;margin-left:10px;}</style>';
+    return style + desc(F, 'F');
+};
+
 ///////// 文本处理 ///////
 
 F.trim = function(text){

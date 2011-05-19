@@ -125,6 +125,10 @@ F.Upload.prototype = {
         if(path.indexOf(':') === -1){
             path = Server.MapPath(path);
         }
+        var folder = new F.Folder(path.replace(/(\\|\/)[^\\\/]+$/, ''));
+        if(!folder.exist()){
+            folder.create();
+        }
         var s = this._stream;
         var t = this._tempStream;
         t.Type = 1;
@@ -136,6 +140,7 @@ F.Upload.prototype = {
         t.Close();
     },
 
+    //保存到某个目录，如果目录不存在，会递归创建
     saveAllTo: function(folder){
         var path = folder.indexOf(':') === -1 ? Server.MapPath(folder) : folder;
         var last = path.slice(-1);
@@ -149,6 +154,7 @@ F.Upload.prototype = {
         }
     },
 
+    //释放资源
     dispose: function(){
         if(this._stream.State !== 0){
             this._stream.Close();
