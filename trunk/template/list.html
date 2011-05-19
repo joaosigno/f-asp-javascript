@@ -1,11 +1,30 @@
 {include file="page_start.html"}
 
 {foreach $posts as $i=>$p}
-{$i} <a href="/?a=view&id={$p.articleid}">{$p.title}</a> <br>
+{$i} {$p.articleid} <a href="/?a=view&id={$p.articleid}">{$p.title}</a> <br>
 {foreachelse}
 <div>暂无数据</div>
 {/foreach}
 
+{if $page.isFirst}
+    <b>首页</b>
+{else}
+    <a href="/?a=list&p=1">首页</a>
+{/if}
+
+{foreach $page_numbers as $i=>$n}
+{if $n == $page.current}
+<b>{$n}</b>
+{else}
+<a href="/?a=list&p={$n}">{$n}</a>
+{/if}
+{/foreach}
+
+{if $page.isLast}
+    <b>尾页</b>
+{else}
+<a href="/?a=list&p={$page.total}">尾页</a>
+{/if}
 
 {include file="page_end.html"}
 
