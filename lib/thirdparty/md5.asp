@@ -1,5 +1,5 @@
 <%
-(function(){
+(function(F){
 /*
  * A Javascrīpt implementation of the RSA Data Security, Inc. MD5 Message
  * Digest Algorithm, as defined in RFC 1321.
@@ -28,6 +28,15 @@ function hex_hmac_md5(key, data) { return binl2hex(core_hmac_md5(key, data)); }
 function b64_hmac_md5(key, data) { return binl2b64(core_hmac_md5(key, data)); }
 function str_hmac_md5(key, data) { return binl2str(core_hmac_md5(key, data)); }
 
+//为F扩展
+F.md5 = hex_md5;
+F.hex_md5 = hex_md5;
+F.b64_md5 = b64_md5;
+F.str_md5 = str_md5;
+F.hex_hmac_md5 = hex_hmac_md5;
+F.b64_hmac_md5 = b64_hmac_md5;
+F.str_hmac_md5 = str_hmac_md5;
+
 /*
  * Perform a simple self-test to see if the VM is working
  */
@@ -52,10 +61,10 @@ function core_md5(x, len)
 
   for(var i = 0; i < x.length; i += 16)
   {
-    var ōlda = a;
-    var ōldb = b;
-    var ōldc = c;
-    var ōldd = d;
+    var olda = a;
+    var oldb = b;
+    var oldc = c;
+    var oldd = d;
 
     a = md5_ff(a, b, c, d, x[i+ 0], 7 , -680876936);
     d = md5_ff(d, a, b, c, x[i+ 1], 12, -389564586);
@@ -256,7 +265,7 @@ function binl2b64(binarray)
   }
   return str;
 }
-})();
+})(F);
 
 // vim:ft=javascript
 %>

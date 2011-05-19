@@ -91,6 +91,8 @@ F.Model.prototype = {
             'count' : count,
             'isFirst' : currentPage === 1,
             'isLast' : currentPage === total,
+            'hasPrev': currentPage > 1,
+            'hasNext': currentPage < totalPage,
             'data' : data,
             'numbers' :  numbers
         };

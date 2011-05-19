@@ -23,11 +23,6 @@ var START = new Date().getTime();
 Response.Charset="utf8";
 Session.CodePage=65001;
 
-//模板变量
-var __template_data = {
-    page_title : '标题'
-};
-
 var echo = function(){
     for(var i=0, l=arguments.length; i<l; i++){
         Response.Write(arguments[i]);
@@ -44,6 +39,11 @@ var log = function(s){
         F.json.stringify({DATA:arguments.length > 0 ? s : __template_data}),
     '</div>');
     Response.Flush();
+};
+
+//模板变量
+var __template_data = {
+    page_title : '标题'
 };
 
 var assign = function(key, value){
