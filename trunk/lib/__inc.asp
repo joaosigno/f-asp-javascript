@@ -6,6 +6,7 @@ var START = new Date().getTime();
 <!--#include file="F.util.asp"-->
 <!--#include file="F.string.asp"-->
 <!--#include file="F.File.asp"-->
+<!--#include file="F.Folder.asp"-->
 <!--#include file="F.Zip.asp"-->
 <!--#include file="F.Smarty.asp"-->
 <!--#include file="F.ajax.asp"-->
@@ -17,6 +18,7 @@ var START = new Date().getTime();
 <!--#include file="F.MsJetConnection.asp"-->
 <!--#include file="F.ExcelConnection.asp"-->
 <!--#include file="F.Model.asp"-->
+<!--#include file="F.Upload.asp"-->
 <%
 Response.Charset="utf8";
 Session.CodePage=65001;
@@ -41,6 +43,7 @@ var log = function(s){
     echo('<div style="background:#ddd;padding:3px;margin:3px 0;font-size:12px;">',
         F.json.stringify({DATA:arguments.length > 0 ? s : __template_data}),
     '</div>');
+    Response.Flush();
 };
 
 var assign = function(key, value){

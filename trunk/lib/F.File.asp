@@ -1,5 +1,6 @@
 <%
 F.File = function(filename){
+    this.path = '';
     this.fso = new ActiveXObject("Scripting.FileSystemObject");
     if(F.isString(filename)){
         this.setPath(filename);
