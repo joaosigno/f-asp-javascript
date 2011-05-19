@@ -54,6 +54,49 @@ F.Model.prototype = {
         return this.connection.executeScalar(sql);
     },
 
+    //分页，可以满足基本的使用
+    page: function(page, count, fields, order, linkCount){
+        var p = {},
+        total = this.count(),
+        pk = this.pk(),
+        count = count || 10,
+        totalPage = Math.ceil(total/count),
+        fields = fields || '*',
+        order = 'order by ' + (order ? order : pk),
+        currentPage = parseInt(page || 1),
+        linkCount = linkCount || 10;
+        if(isNaN(currentPage) || currentPage < 1){
+            currentPage = 1;
+        }else if(currentPage > totalPage){
+            currentPage = totalPage;
+        }
+        var sql = 'select top ' + count + 
+            ' ' + fields + ' from ' + this.tableName + 
+            (currentPage > 1 ? (' where ' + pk + 
+            ' not in ( select top ' + (count*(currentPage-1)) + 
+            ' ' + pk + ' from ' + this.tableName + ' ' + order + 
+            ') ') : ' ' ) + order;
+        var data = this.connection.getJson(sql);
+        var numbers = [], half = Math.ceil(linkCount/2), i = 0, 
+        maxNum = (currentPage+half)<totalPage ? currentPage + half : totalPage;
+        while(i++ < linkCount){
+            if(maxNum > 0){
+                numbers.unshift(maxNum);
+            }
+            maxNum --;
+        }
+        var r = {
+            'total' : totalPage,
+            'current' : currentPage,
+            'count' : count,
+            'isFirst' : currentPage === 1,
+            'isLast' : currentPage === total,
+            'data' : data,
+            'numbers' :  numbers
+        };
+        return r;
+    },
+
     //查找符合条件的全部结果
     findAll: function(where, fields, order, limit, isRecordSet){
         where = this._getWhereString(where);
