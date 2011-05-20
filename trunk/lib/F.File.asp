@@ -77,7 +77,7 @@ F.File.prototype = {
 
     getText: function(charset){
         if(!this.exist()){
-            return '';
+            throw new Error('文件不存在:' + this.path);
         }
         var s = new ActiveXObject("ADODB.Stream"), str;
         s.Type = 2;

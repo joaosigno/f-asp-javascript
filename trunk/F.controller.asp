@@ -5,19 +5,18 @@ F.namespace('F.controller');
 F.controller.site = {
     //首页
     index : function(){
-        display('template/index.html');
-
-        var u = new F.Upload();
-        u.saveAllTo('upa');
-        die();
-
         assign('page_title', '首页');
         display('template/index.html');
+        die();
+        F.ajax.get('http://www.baiduux.com/blog/feed/', function(data){
+            log(data.xml)
+            log(parseXMLNode(data))
+        },'xml');
     },
 
     //列表页
     list:function(){
-        //this._checkCache();
+        var key = this._checkCache();
 
         var db = this._openDb();
         var model = db.model('learning');
@@ -30,7 +29,7 @@ F.controller.site = {
         assign('page', page);
 
         var cache = display('template/list.html');
-        F.cache.setFileText(cache);
+        F.cache.setFileText(key, cache);
     },
 
     //查看文章
@@ -88,14 +87,17 @@ F.controller.site = {
     },
 
     _checkCache: function(){
+        var key = F.md5(F.get('r') + F.get('a') + F.get('id') + F.get('p'));
+        //log(key)
         var cacheTime = 1000 * 60 * 60; //1小时
-        if(F.cache.existFile()){
-            if(new Date() - F.cache.time() < cacheTime){
-                echo(F.cache.getFileText());
+        if(F.cache.existFile(key)){
+            if(new Date() - F.cache.time(key) < cacheTime){
+                echo(F.cache.getFileText(key));
                 //log(new Date() - START);
                 die();
             }
         }
+        return key;
     }
 };
 
@@ -103,7 +105,13 @@ F.controller.site = {
 
 F.controller.test = {
     index: function(){
-        echo('hahahah');
+        echo(F.desc());
+    },
+
+    markdown: function(){
+        var text = new F.File('test/markdown.text').getText();
+        echo(F.string.markdown.toHTML(text));
+        log(new Date - START)
     }
 };
 

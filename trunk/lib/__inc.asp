@@ -2,6 +2,7 @@
 <%
 var START = new Date().getTime();
 %>
+<!--#include file="prototype/__inc.asp"-->
 <!--#include file="F.asp"-->
 <!--#include file="F.util.asp"-->
 <!--#include file="F.string.asp"-->
@@ -19,6 +20,7 @@ var START = new Date().getTime();
 <!--#include file="F.ExcelConnection.asp"-->
 <!--#include file="F.Model.asp"-->
 <!--#include file="F.Upload.asp"-->
+<!--#include file="F.Xml.asp"-->
 <%
 Response.Charset="utf8";
 Session.CodePage=65001;

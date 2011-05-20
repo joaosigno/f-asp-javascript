@@ -132,7 +132,7 @@ F.desc = function(){
     }
     var style = '<style>.F_DESC b{font:14px/18px Consolas,Monaco,"Courier New"}'+
         '.F_DESC span{color:#0BAD03;font-size:13px;margin-left:10px;}</style>';
-    return style + desc(F, 'F');
+    return style + desc(Array.prototype, 'Array.prototype') + desc(F, 'F');
 };
 
 ///////// 文本处理 ///////
