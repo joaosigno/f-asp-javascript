@@ -12,6 +12,11 @@
     <a href="/?a=list&p=1">首页</a>
 {/if}
 
+{if $page.hasPrev}
+<a href="/?a=list&p={$page.current-1}">上一页</a>
+{else}
+<span>上一页</span>
+{/if}
 {foreach $page_numbers as $i=>$n}
 {if $n == $page.current}
 <b>{$n}</b>
@@ -19,7 +24,11 @@
 <a href="/?a=list&p={$n}">{$n}</a>
 {/if}
 {/foreach}
-
+{if $page.hasNext}
+    <a href="/?a=list&p={$page.current+1}">下一页</a>
+{else}
+    <span>下一页</span>
+{/if}
 {if $page.isLast}
     <b>尾页</b>
 {else}

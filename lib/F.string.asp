@@ -1,7 +1,10 @@
-<!--#include file="thirdparty/md5.asp"-->
 <%
 F.namespace('F.string');
-
+F.namespace('F.string.markdown');
+%>
+<!--#include file="thirdparty/md5.asp"-->
+<!--#include file="thirdparty/markdown.asp"-->
+<%
 //已在md5中扩展了以下函数
 //F.hex_md5 = hex_md5;
 //F.b64_md5 = b64_md5;
@@ -9,7 +12,6 @@ F.namespace('F.string');
 //F.hex_hmac_md5 = hex_hmac_md5;
 //F.b64_hmac_md5 = b64_hmac_md5;
 //F.str_hmac_md5 = str_hmac_md5;
-
 F.string.base64Encode = function(str) {
     var b64ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
     var b64 = "", b = 0, len = str.length;

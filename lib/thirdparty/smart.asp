@@ -4,7 +4,7 @@
  * @preserve jSmart Javascript template engine
  * http://code.google.com/p/jsmart/
  *
- * Copyright 2011, Maxim Miroshnikov <miroshnikov at gmail dot com> 
+ * Copyright 2011, Max Miroshnikov <miroshnikov at gmail dot com> 
  * jSmart is licensed under the GNU General Public License
  * http://www.apache.org/licenses/LICENSE-2.0
 */
@@ -37,6 +37,7 @@
 
     /**
        merges two or more objects into one and add prefix at the beginning of every property name at the top level
+       objects type is lost, prototype properties become own properties 
     */
     function obMerge(prefix, ob1, ob2 /*, ...*/)
     {
@@ -60,19 +61,24 @@
 
 
     /**
-       @return  number of own properties in ob
+       @return  number of properties in ob
     */
     function countProperties(ob)
     {
         var count = 0;
-        for (k in ob) 
+        for (var k in ob) 
         {
-            if (ob.hasOwnProperty(k))
-            {
-                count++;
-            }
+            count++;
         }
         return count;
+    }
+
+    /**
+       @return  s trimmed and without quotes
+    */
+    function trimQuotes(s)
+    {
+        return s.replace(/^\s+|\s+$/g,'').replace(/^['"]{1}|['"]{1}$/g,'');
     }
 
     /**
@@ -95,7 +101,7 @@
 
         for (var i=0; i<s.length; ++i)
         {
-            if (s.substr(i, 1) == '{')
+            if (s.substr(i,1) == '{')
             {
                 if (skipInWS && i+1 < s.length && WS.indexOf(s[i+1]) >= 0)
                 {
@@ -292,7 +298,7 @@
                         if( this.foreach(
                             params.name, 
                             params.__get('start',0),
-                            countProperties(params.loop),
+                            (params.loop instanceof Array) ? params.loop.length : countProperties(params.loop),
                             params.__get('step',1),
                             params.__get('max',Number.MAX_VALUE),
                             data,
@@ -482,26 +488,45 @@
             'foreach': 
             {
                 'type': 'block',
-                'parse': function(params, tree, content)
+                'parse': function(paramStr, tree, content)
                 {
-                    var res = params.match(/^ *\$(\w+) *as *\$(\w+) *(=> *\$(\w+))? *$/i);
-                    if (!res)
+                    var arrName = null;
+                    var varName = null;
+                    var keyName = null;
+                    var loopName = null;
+
+                    var res = paramStr.match(/^ *\$(\w+) *as *\$(\w+) *(=> *\$(\w+))? *$/i);
+                    if (res)
                     {
-                        throw new Error('Invalid foreach parameters: '+params);
+                        arrName = '$'+res[1];
+                        varName = res[4] ? res[4] : res[2];
+                        keyName = res[4] ? res[2] : null;
                     }
-                    var arrName = res[1];
-                    var varName = res[4] ? res[4] : res[2];
-                    var keyName = res[4] ? res[2] : null;
+                    else    //Smarty 2.x syntax
+                    {
+                        var params = parseParams(paramStr);
+                        arrName = params['from'];
+                        varName = trimQuotes(params['item']);
+                        if ('key' in params)
+                        {
+                            keyName = trimQuotes(params['key']);
+                        }
+                        if ('name' in params)
+                        {
+                            loopName = trimQuotes(params['name']);
+                        }
+                    }
 
                     var subTree = [];
                     var subTreeElse = [];
                     tree.push({
-                        'type' : 'build-in',
-                        'name' : 'foreach',
-                        'arr' : '$'+arrName,
-                        'keyName' : '$'+keyName,
-                        'varName' : '$'+varName,
-                        'subTree' : subTree,
+                        'type'        : 'build-in',
+                        'name'        : 'foreach',
+                        'arr'         : arrName,
+                        'keyName'     : keyName,
+                        'varName'     : '$'+varName,
+                        'loopName'    : loopName,
+                        'subTree'     : subTree,
                         'subTreeElse' : subTreeElse
                     });
 
@@ -519,41 +544,64 @@
 
                 'process': function(node, data)
                 {
-                    if (node.arr in data)
+                    var a = (node.arr in data) ? data[node.arr] : trimQuotes(node.arr);
+                    if (!(a instanceof Object))
                     {
-                        var a = data[node.arr];
-                        if (a instanceof Object)
+                        a = [a];
+                    }
+
+                    var total = (a instanceof Array) ? a.length : countProperties(a);
+
+                    data[node.varName+'__total'] = total;
+                    if (node.loopName)
+                    {
+                        data['$smarty']['foreach'][node.loopName] = {};
+                        data['$smarty']['foreach'][node.loopName]['total'] = total;
+                    }
+
+                    var s='';
+                    var i=0;
+                    for (var key in a)
+                    {
+                        if (a instanceof Array)
                         {
-                            var s = '';
-                            var total = 0;
-                            var nm = null;
-                            for (nm in a)
+                            key = parseInt(key);
+                            if (isNaN(key))
                             {
-                                ++total;
-                            }
-                            data[node.varName+'__total'] = total;
-                            var i=0;
-                            for (nm in a)
-                            {
-                                data[node.varName+'__key'] = (a instanceof Array) ? parseInt(nm) : nm;
-                                if (node.keyName)
-                                {
-                                    data[node.keyName] = data[node.varName+'__key'];
-                                }
-                                data[node.varName] = a[nm];
-                                data[node.varName+'__index'] = parseInt(i);
-                                data[node.varName+'__iteration'] = parseInt(i+1);
-                                data[node.varName+'__first'] = (i===0);
-                                data[node.varName+'__last'] = (i==total-1);
-                                s += process(node.subTree, data);
-                                ++i;
-                            }
-                            data[node.varName+'__show'] = (i>0);
-                            if (i>0)
-                            {
-                                return s;                
+                                continue;
                             }
                         }
+
+                        data[node.varName+'__key'] = key;
+                        if (node.keyName)
+                        {
+                            data['$'+node.keyName] = data[node.varName+'__key'];
+                        }
+                        data[node.varName] = a[key];
+                        data[node.varName+'__index'] = parseInt(i);
+                        data[node.varName+'__iteration'] = parseInt(i+1);
+                        data[node.varName+'__first'] = (i===0);
+                        data[node.varName+'__last'] = (i==total-1);
+                        
+                        if (node.loopName)
+                        {
+                            data['$smarty']['foreach'][node.loopName]['index'] = parseInt(i);
+                            data['$smarty']['foreach'][node.loopName]['iteration'] = parseInt(i+1);
+                            data['$smarty']['foreach'][node.loopName]['first'] = (i===0) ? 1 : '';
+                            data['$smarty']['foreach'][node.loopName]['last'] = (i==total-1) ? 1 : '';
+                        }
+
+                        s += process(node.subTree, data);
+                        ++i;
+                    }
+                    data[node.varName+'__show'] = (i>0);
+                    if (node.loopName)
+                    {
+                        data['$smarty']['foreach'][node.loopName]['show'] = (i>0) ? 1 : '';
+                    }
+                    if (i>0)
+                    {
+                        return s;                
                     }
                     return process(node.subTreeElse, data);
                 }
@@ -682,9 +730,9 @@
             'include':
             {
                 'type': 'function',
-                'parse': function(params, tree)
+                'parse': function(paramStr, tree)
                 {
-                    var params = parseParams(params);
+                    var params = parseParams(paramStr);
                     var file = eval(params.file);
                     tree.push({
                         'type'   : 'build-in',
@@ -722,9 +770,9 @@
             'extends':
             {
                 'type': 'function',
-                'parse': function(params, tree)
+                'parse': function(paramStr, tree)
                 {
-                    var params = parseParams(params);
+                    var params = parseParams(paramStr);
                     var file = eval(params.file);
                     var tpl = jSmart.prototype.getTemplate(file);
                     if (typeof(tpl) != 'string')
@@ -951,7 +999,13 @@
                 else if (nm in plugins)
                 {
                     var plugin = plugins[nm];
-                    if (plugin.type == 'function')
+                    if (plugin.type == 'block')
+                    {
+                        var closeTag = findCloseTag('\/'+nm, nm+' +[^}]*', s);
+                        parsePluginBlock(nm, params, tree, s.slice(0,closeTag.index));
+                        s = s.slice(closeTag.index+closeTag[0].length);
+                    }
+                    else if (plugin.type == 'function')
                     {
                         parsePluginFunc(nm, params, tree);
                     }
@@ -1009,6 +1063,18 @@
         return params;
     }
 
+    function parsePluginBlock(name, params, tree, content)
+    {
+        var subTree = [];
+        tree.push({
+            'type' : 'plugin',
+            'name' : name,
+            'params' : parseParams(params),
+            'subTree' : subTree
+        });
+        parse(content,subTree);
+    }
+
     function parsePluginFunc(name, params, tree)
     {
         tree.push({
@@ -1053,7 +1119,26 @@
             }
             else if (node.type == 'plugin')
             {
-                s += plugins[node.name].process(getActualParamValues(node.params,data), data);
+                var plugin = plugins[node.name];
+                if (plugin.type == 'block')
+                {
+                    var repeat = {value:true};
+                    plugins[node.name].process(getActualParamValues(node.params,data), '', data, repeat);
+                    while (repeat.value)
+                    {
+                        repeat.value = false;
+                        s += plugins[node.name].process(
+                            getActualParamValues(node.params,data), 
+                            process(node.subTree, data), 
+                            data, 
+                            repeat
+                        );
+                    }
+                }
+                else if (plugin.type == 'function')
+                {
+                    s += plugins[node.name].process(getActualParamValues(node.params,data), data);
+                }
             }
         }
         return s;    
@@ -1091,6 +1176,7 @@
             'smarty' : 
             {
                 'capture': {},
+                'foreach': {},
                 'section': {}
             }
         };
@@ -1248,6 +1334,7 @@
     };
 
 })()
+
 
 // vim:ft=javascript
 %>
