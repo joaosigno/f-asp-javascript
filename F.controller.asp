@@ -5,13 +5,8 @@ F.namespace('F.controller');
 F.controller.site = {
     //首页
     index : function(){
-        assign('page_title', '首页');
-        display('template/index.html');
-        die();
-        F.ajax.get('http://www.baiduux.com/blog/feed/', function(data){
-            log(data.xml)
-            log(parseXMLNode(data))
-        },'xml');
+       // assign('page_title', '首页');
+       // display('template/index.html');
     },
 
     //列表页
@@ -101,17 +96,19 @@ F.controller.site = {
     }
 };
 
-
-
+//用于测试
 F.controller.test = {
     index: function(){
-        echo(F.desc());
+        echo(F.desc([F, 'F'], 
+            [Array.prototype, 'Array.prototype'], 
+            [String.prototype, 'String.prototype'], 
+            [Date.prototype, 'Date.prototype'],
+            [Number.prototype, 'Number.prototype']));
     },
 
     markdown: function(){
         var text = new F.File('test/markdown.text').getText();
         echo(F.string.markdown.toHTML(text));
-        log(new Date - START)
     }
 };
 
