@@ -2,17 +2,20 @@
 // 缓存操作
 F.namespace('F.cache');
 
+//设置
 F.cache.set = function(name, value) {
     Application.Lock();
     Application(name) = value;
     Application.UnLock();
 };
 
+//获取
 F.cache.get = function(name) {
     var value = Application(name);
     return value;
 };
 
+//删除name或者全部
 F.cache.remove = function(name) {
     Application.Lock();
     if (name) {
