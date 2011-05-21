@@ -14,9 +14,16 @@ F.Xml = function(input){
 };
 
 F.Xml.prototype = {
-    toJson: function(){
-        return F.Xml.parseXMLNode(this.obj);
-    }
+    toJson: function(node){
+        return F.Xml.parseXMLNode(node || this.obj);
+	},
+
+	load: function(url){
+		F.ajax.get(url, function(xml){
+			this.obj = xml;
+			this.xml = xml.xml;
+	    }, 'xml');
+	}
 };
 
 F.Xml.parseXMLNode = function(node) {

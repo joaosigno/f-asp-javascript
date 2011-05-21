@@ -4,7 +4,7 @@
 * 框架顶级命名空间
 */
 var F = {
-	version: 20110419
+    version: 20110520
 };
 
 /**
@@ -16,12 +16,12 @@ F.env = this;
 * 获取唯一的id
 */
 F.getGuid = function() {
-	var _id = 1;
-	F.getGuid = function() {
-		_id++;
-		return _id;
-	};
-	return _id;
+    var _id = 1;
+    F.getGuid = function() {
+        _id++;
+        return _id;
+    };
+    return _id;
 };
 
 /**
@@ -33,21 +33,21 @@ F._included = {};
 * 为给定的参数创建命名空间
 */
 F.namespace = function(name) {
-	var ns = name.split('.'),
-	nt = ns.shift(),
-	is_f = nt == 'F' || nt == 'feng',
-	g = is_f ? F: (F.env[nt] = {}),
-	cur = g,
-	part;
-	if (is_f) {
-		F._included[name] = true;
-	}
-	while (ns.length && (part = ns.shift())) {
-		if (!cur[part]) {
-			cur[part] = {};
-		}
-		cur = cur[part];
-	}
+    var ns = name.split('.'),
+    nt = ns.shift(),
+    is_f = nt == 'F' || nt == 'feng',
+    g = is_f ? F: (F.env[nt] = {}),
+    cur = g,
+    part;
+    if (is_f) {
+        F._included[name] = true;
+    }
+    while (ns.length && (part = ns.shift())) {
+        if (!cur[part]) {
+            cur[part] = {};
+        }
+        cur = cur[part];
+    }
 };
 
 /**
@@ -55,44 +55,44 @@ F.namespace = function(name) {
 * 引入到当前环境中。
 */
 F.require = function(name) {
-	if (!F._included[name]) {
-		//TODO
-	}
+    if (!F._included[name]) {
+        //TODO
+    }
 };
 
 /** 
 * 模拟继承，子类可以使用_superClass找到父类
 */
 F.inherits = function(fn, parentFn) {
-	function tempFn() {};
-	tempFn.prototype = parentFn.prototype;
-	fn._superClass = parentFn.prototype;
-	fn.prototype = new tempFn();
-	fn.prototype.constructor = fn;
+    function tempFn() {};
+    tempFn.prototype = parentFn.prototype;
+    fn._superClass = parentFn.prototype;
+    fn.prototype = new tempFn();
+    fn.prototype.constructor = fn;
 };
 
 F.isArray = function(arg) {
-	return arg instanceof Array || '[object Array]' === Object.prototype.toString.call(arg);
+    return arg instanceof Array || '[object Array]' === Object.prototype.toString.call(arg);
 }
 
 F.isObject = function(arg) {
-	return 'object' === typeof arg || 'function' === typeof arg;
+    return 'object' === typeof arg || 'function' === typeof arg;
 }
 
 F.isFunction = function(arg) {
-	return '[object Function]' === Object.prototype.toString.call(arg);
+    return '[object Function]' === Object.prototype.toString.call(arg);
 }
 
 F.isNumber = function(arg) {
-	return '[object Number]' === Object.prototype.toString.call(arg);
+    return '[object Number]' === Object.prototype.toString.call(arg);
 }
 
 F.isString = function(arg) {
-	return '[object String]' === Object.prototype.toString.call(arg);
+    return '[object String]' === Object.prototype.toString.call(arg);
 }
 
 F.isBoolen = function(arg) {
-	return 'boolen' === typeof arg;
+    return 'boolen' === typeof arg;
 }
 
 F.isUndefinded = function(arg){
@@ -101,14 +101,14 @@ F.isUndefinded = function(arg){
 };
 
 F.extend = function(obj_desc, obj_source) {
-	for (var fn in obj_source) {
-		obj_desc[fn] = obj_source[fn];
-	}
-	return obj_desc;
+    for (var fn in obj_source) {
+        obj_desc[fn] = obj_source[fn];
+    }
+    return obj_desc;
 };
 
 F.addMethods = function(obj_methods) {
-	F.extend(F, obj_methods);
+    F.extend(F, obj_methods);
 };
 
 //打印F的结构
@@ -131,31 +131,57 @@ F.desc = function(){
         return html.join('');
     }
     var style = '<style>.F_DESC b{font:14px/18px Consolas,Monaco,"Courier New"}'+
-        '.F_DESC span{color:#0BAD03;font-size:13px;margin-left:10px;}</style>';
-    return style + desc(Array.prototype, 'Array.prototype') + desc(F, 'F');
-};
+    '.F_DESC span{color:#0BAD03;font-size:13px;margin-left:10px;}</style>';
 
-///////// 文本处理 ///////
-
-F.trim = function(text){
-    return (text || "").replace( /^(\s|\u00A0)+|(\s|\u00A0)+$/g , "" );
+    var html = [];    
+    Array.prototype.forEach.call(arguments, function(v, i){
+        html.push(desc(v[0], v[1]));
+    });
+    return style + html.join('');
 };
 
 ////////  asp ////////
 
 //获取url参数
 F.get = function(key){
-    return Request.QueryString(key).Item;
+    if(key === undefined){
+        var r = {};
+        F.enumerate(Request.QueryString, function(k, v){r[k] = v;});
+        return r;
+    }else{
+        return Request.QueryString(key).Item;
+    }
 };
 
 //获取post参数
 F.post = function(key){
-    return Request.Form(key).Item;
+    if(key === undefined){
+        var r = {};
+        F.enumerate(Request.Form, function(k, v){r[k] = v;});
+        return r;
+    }else{
+        return Request.Form(key).Item;
+    }
 };
 
 //获取server参数
 F.server = function(key){
-    return Request.ServerVariables(key).Item;
+    if(key === undefined){
+        var r = {};
+        F.enumerate(Request.ServerVariables, function(k, v){r[k] = v;});
+        return r;
+    }else{
+        return Request.ServerVariables(key).Item;
+    }
+};
+
+//编译对象
+F.enumerate = function(obj, fn){
+    var e = new Enumerator(obj);
+    for(; !e.atEnd(); e.moveNext()){
+        var name = e.Item();
+        fn.call(obj, e.Item(), obj(name).Item());
+    }
 };
 
 //是否是get请求
@@ -172,7 +198,7 @@ F.isPost = function(){
 F.ip = function(){
     var proxy = F.server("HTTP_X_FORWARDED_FOR"),
     ip = proxy && proxy.indexOf("unknown") != -1 ? proxy.split(/,;/g)[0] : F.server("REMOTE_ADDR");
-    ip = F.trim(ip).substring(0, 15);
+    ip = ip.trim().substring(0, 15);
     return "::1" === ip ? "127.0.0.1" : ip;
 };
 

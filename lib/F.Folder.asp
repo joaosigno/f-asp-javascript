@@ -30,9 +30,7 @@ F.Folder.prototype = {
     create: function(path){
         var ps = (this.path || path).split(':');
         var fs = ps[1].split(/\\|\//);
-        var tmp = ps[0] + ':\\' + fs.shift();
-        if(!this.exist(tmp))
-            this.fso.CreateFolder(tmp);
+        var tmp = ps[0] + ':';
         do{
             tmp += '\\' + fs.shift();
             if(!this.exist(tmp)){
