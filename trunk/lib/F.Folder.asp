@@ -2,11 +2,15 @@
 //文件夹类
 F.Folder = function(path){
     this.path = '';
-    this.fso = new ActiveXObject("Scripting.FileSystemObject");
     if(F.isString(path)){
         this.setPath(path);
     }
+    if(!F.Folder.fso){
+        F.Folder.fso = new ActiveXObject("Scripting.FileSystemObject");
+    }
+    this.fso = F.Folder.fso;
 };
+F.Folder.fso = null;
 
 
 F.Folder.prototype = {

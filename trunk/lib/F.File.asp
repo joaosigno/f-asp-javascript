@@ -1,17 +1,27 @@
 <%
+//文件类
 F.File = function(filename){
     this.path = '';
-    this.fso = new ActiveXObject("Scripting.FileSystemObject");
     if(F.isString(filename)){
         this.setPath(filename);
     }
+    if(!F.File.fso){
+        F.File.fso = new ActiveXObject("Scripting.FileSystemObject");
+    }
+    this.fso = F.File.fso;
 };
 
+//全局变量，所有实例共用
+F.File.fso = null;
+
 F.File.prototype = {
+
+    //取得文件名
     getFileName: function(){
         return this.fso.GetFileName(this.path);
     },
 
+    //文件类型
     getFileType: function(){
         var o = new ActiveXObject("ADODB.Stream")
         o.Type = 2;
@@ -119,6 +129,7 @@ F.File.prototype = {
         s.SaveToFile(this.path, 2);
         s.Close();
         s = null;
+        return this;
     },
 
     setBinary: function(content){
@@ -129,6 +140,7 @@ F.File.prototype = {
         s.SaveToFile(this.path, 2);
         s.Close();
         s = null;
+        return this;
     },
 
     setBase64String: function(str64){
@@ -139,20 +151,41 @@ F.File.prototype = {
         this.setBinary(f.nodeTypedValue);
         f = null;
         xml = null;
+        return this;
     },
 
-    /**
-    * 向文本文件中追加文本。只适合小文件
-    */
+    //创建文件
+    create: function(content){
+        var folder = this.getFolder();
+        if(!folder.exist()){
+            folder.create();
+        }
+        var f = this.fso.CreateTextFile(this.path, true);
+        if(content !== undefined){
+            f.WriteLine(content);
+        }
+        f.Close();
+        return this;
+    },
+
+    //返回 F.Folder()实例
+    getFolder: function(){
+        return new F.Folder(this.path.replace(/(\\|\/)[^\\\/]+$/, ''));
+    },
+
+    //向文本文件中追加文本。只适合小文件
     appendText: function(text, charset){
         var content = this.getText();
-        this.setText(content + text, charset);
+        return this.setText(content + text, charset);
     },
 
+    //设置路径
     setPath: function(path){
         this.path = (path.indexOf(':') > -1) ? path : Server.MapPath(path);
+        return this;
     },
 
+    //是否存在
     exist: function(path){
         return this.fso.FileExists(path || this.path);
     },
@@ -160,8 +193,10 @@ F.File.prototype = {
     //删除文件，如果传入path，path最后可以是通配符
     remove: function(path){
         this.fso.DeleteFile(path || this.path, true);
+        return this;
     },
 
+    //获取扩展名
     getExtensionName: function(path){
         return this.fso.GetExtensionName(path || this.path);
     },
