@@ -5,13 +5,13 @@ F.namespace('F.controller');
 F.controller.site = {
     //首页
     index : function(){
-       // assign('page_title', '首页');
-       // display('template/index.html');
+        assign('page_title', '首页');
+        display('template/index.html');
     },
 
     //列表页
     list:function(){
-        var key = this._checkCache();
+        //this._checkCache();
 
         var db = this._openDb();
         var model = db.model('learning');
@@ -24,12 +24,12 @@ F.controller.site = {
         assign('page', page);
 
         var cache = display('template/list.html');
-        F.cache.setFileText(key, cache);
+        this._setCache(cache);
     },
 
     //查看文章
     view : function(){
-        this._checkCache();
+        //this._checkCache();
 
         var id = parseInt(F.get('id'));
         if(isNaN(id)) die('错误参数');
@@ -46,7 +46,7 @@ F.controller.site = {
             assign('page_title', post.title);
             assign('post', post);
             var cache = display('template/view.html');
-            F.cache.setFileText(cache);
+            this._setCache(cache);
         }
     },
 
@@ -93,6 +93,11 @@ F.controller.site = {
             }
         }
         return key;
+    },
+
+    _setCache: function(content){
+        var key = F.md5(F.get('r') + F.get('a') + F.get('id') + F.get('p'));
+        F.cache.setFileText(key, content);
     }
 };
 
