@@ -52,7 +52,6 @@ F.Folder.prototype = {
 
     //销毁示例资源
     dispose: function(){
-        this.fso = null;
         this.path = null;
     }
 };

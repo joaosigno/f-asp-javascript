@@ -202,7 +202,6 @@ F.File.prototype = {
     },
 
     dispose: function(){
-        this.fso = null;
         this.path = null;
     }
 };
