@@ -5,13 +5,14 @@ F.namespace('F.controller');
 F.controller.site = {
     //首页
     index : function(){
+        log(F.get())
         assign('page_title', '首页');
         display('template/index.html');
     },
 
     //列表页
     list:function(){
-        //this._checkCache();
+        this._checkCache();
 
         var db = this._openDb();
         var model = db.model('learning');
@@ -76,28 +77,29 @@ F.controller.site = {
         }
     },
 
+    _init: function(){
+        var s = 'r'+F.get('r')+'a'+F.get('a')+'id'+F.get('id')+'p'+F.get('p');
+        this._key = F.md5(s);
+        log(s);
+    },
+
     _openDb: function(){
         var db = new F.MsJetConnection('data.mdb').open();
         return db;
     },
 
     _checkCache: function(){
-        var key = F.md5(F.get('r') + F.get('a') + F.get('id') + F.get('p'));
-        //log(key)
         var cacheTime = 1000 * 60 * 60; //1小时
-        if(F.cache.existFile(key)){
-            if(new Date() - F.cache.time(key) < cacheTime){
-                echo(F.cache.getFileText(key));
-                //log(new Date() - START);
+        if(F.cache.existFile(this._key)){
+            if(new Date() - F.cache.time(this._key) < cacheTime){
+                echo(F.cache.getFileText(this._key));
                 die();
             }
         }
-        return key;
     },
 
     _setCache: function(content){
-        var key = F.md5(F.get('r') + F.get('a') + F.get('id') + F.get('p'));
-        F.cache.setFileText(key, content);
+        F.cache.setFileText(this._key, content);
     }
 };
 

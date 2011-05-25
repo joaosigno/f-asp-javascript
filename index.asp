@@ -7,6 +7,9 @@ var action = F.get('a') || 'index';
 if(controller in F.controller){
     if(action in F.controller[controller] && action.substring(0,1) !== '_'){
         try{
+            if('_init' in F.controller[controller]){
+                F.controller[controller]._init();
+            }
             F.controller[controller][action]();
         }catch(e){
             echo('<div style="color:#DD0000">');
