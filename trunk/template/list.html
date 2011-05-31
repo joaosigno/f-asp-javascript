@@ -1,7 +1,7 @@
 {include file="page_start.html"}
 
 {foreach $posts as $i=>$p}
-{$i} {$p.articleid} <a href="/?a=view&id={$p.articleid}">{$p.title}</a> <br>
+{$i} {$p.id} <a href="/?a=view&id={$p.id}">{$p.title}</a> <br>
 {foreachelse}
 <div>暂无数据</div>
 {/foreach}
