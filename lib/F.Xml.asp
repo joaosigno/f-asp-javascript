@@ -4,10 +4,10 @@ F.Xml = function(input){
     this.input = input;
     this.xml = null;
     this.obj = null;
-    if(typeof input === 'object'){
+    if(F.isObject(input)){
         this.obj = input;
         this.xml = input.xml;
-    }else{
+    }else if(F.isString(input)){
         this.xml = input;
         this.obj = F.Xml.parseXMLString(input);
     }
@@ -16,14 +16,20 @@ F.Xml = function(input){
 F.Xml.prototype = {
     toJson: function(node){
         return F.Xml.parseXMLNode(node || this.obj);
-	},
+    },
 
-	load: function(url){
-		F.ajax.get(url, function(xml){
-			this.obj = xml;
-			this.xml = xml.xml;
-	    }, 'xml');
-	}
+    load: function(url){
+        var _this = this;
+        F.ajax.get(url, function(xml){
+            _this.obj = xml;
+            _this.xml = xml.xml;
+        },'xml');
+        return _this;
+    },
+
+    toString: function(){
+        return this.xml;
+    }
 };
 
 F.Xml.parseXMLNode = function(node) {
@@ -77,9 +83,9 @@ F.Xml.parseXMLString = function(xml) {
     var xmlDOM = new ActiveXObject("Microsoft.XMLDOM");
     xmlDOM.async = false;
     xmlDOM.validateOnParse = false;
-    var success = xmlDOM.loadXML(xml);
+    var success = xmlDOM.loadXML('<__root>' + xml + '</__root>');
     if (success) {
-        obj = parseXMLDocument(xmlDOM);
+        obj = xmlDOM.documentElement;
     }
     xmlDOM = null;
     return obj;

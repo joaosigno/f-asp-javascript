@@ -1,10 +1,14 @@
 <%
 //数据库连接基类
 F.Connection = function(){
+    F.Connection.last = this;
     this._connectionString = '';
     this._connection = null;
     this._isOpen = false;
 };
+
+//最后创建的连接
+F.Connection.last = null;
 
 
 F.Connection.prototype = {
@@ -45,7 +49,12 @@ F.Connection.prototype = {
 
     //执行sql
     execute: function(sql){
-        return this._connection.Execute(sql);
+        try{
+            return this._connection.Execute(sql);
+        }catch(e){
+            e.sql = sql;
+            debug(arguments, e);
+        }
     },
 
     //获取单个值

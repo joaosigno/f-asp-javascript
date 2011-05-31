@@ -5,7 +5,6 @@ F.namespace('F.controller');
 F.controller.site = {
     //首页
     index : function(){
-        log(F.get())
         assign('page_title', '首页');
         display('template/index.html');
     },
@@ -15,8 +14,8 @@ F.controller.site = {
         this._checkCache();
 
         var db = this._openDb();
-        var model = db.model('learning');
-        var page = model.page(F.get('p'), 10, 'articleid,title');
+        var model = db.model('jokes');
+        var page = model.page(F.get('p'), 10, 'id,title');
         db.close();
 
         assign('page_title', '列表页');
@@ -36,7 +35,7 @@ F.controller.site = {
         if(isNaN(id)) die('错误参数');
 
         var db = this._openDb();
-        var model = db.model('learning');
+        var model = db.model('jokes');
 
         var post = model.find(id);
         db.close();
@@ -57,7 +56,7 @@ F.controller.site = {
         if(isNaN(id)) die('错误参数');
 
         var db = this._openDb();
-        var model = db.model('learning');
+        var model = db.model('jokes');
 
         if(F.isPost()){
             model.update(id,{
@@ -80,7 +79,6 @@ F.controller.site = {
     _init: function(){
         var s = 'r'+F.get('r')+'a'+F.get('a')+'id'+F.get('id')+'p'+F.get('p');
         this._key = F.md5(s);
-        log(s);
     },
 
     _openDb: function(){

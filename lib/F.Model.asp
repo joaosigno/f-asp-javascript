@@ -8,6 +8,8 @@ F.Model = function(tableName, connection){
     this._constraints = [null, null, this.tableName];
     //主键
     this._primaryKey = null;
+    //字段属性
+    this.fields = null;
 };
 
 F.Model.prototype = {
@@ -27,20 +29,19 @@ F.Model.prototype = {
         }
     },
 
-    //获取表的列名数组
-    fields: function(){
-        var r = [];
+    //获取表的字段属性
+    fieldsType: function(){
+        var r = {};
         var rs = this.connection.getSchema(4, this._constraints);
         var name, type;
         while(!rs.Eof){
             type = rs('DATA_TYPE').Value;
             name = rs('COLUMN_NAME').Value;
-            r.push({
-                name: name,
+            r[name] = {
                 type: type,
                 desc: F.Model.AdoDataType[type].name,
                 base: F.Model.AdoDataType[type].type
-            });
+            };
             rs.MoveNext();
         }
         rs.Close();
@@ -146,6 +147,23 @@ F.Model.prototype = {
             where = where.join(' and ');
         }else if(F.isNumber(where)){
             where = this.pk() + '=' + where; 
+        }else if(F.isObject(where)){
+            if(!this.fields){
+                this.fields = this.fieldsType();
+            }
+            var w = '', fields = this.fields;
+            for(var col in where){
+                if(col in fields){
+                    var s = String(where[col]);
+                    w += 'and ' + col + '=';
+                    if(fields[col].base === 'text'){
+                        w += '"' + s + '"';
+                    }else{
+                        w += s;
+                    }
+                }
+            }
+            where = w.slice(4);
         }
         return where === '' ? '' : ' where ' + where;
     }

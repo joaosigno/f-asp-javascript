@@ -1,20 +1,26 @@
 ﻿<!--#include file="lib\__inc.asp"-->
 <!--#include file="F.controller.asp"-->
 <%
+DEBUG_MODE = true;
 var controller = F.get('r') || 'site';
 var action = F.get('a') || 'index';
-
+var fn = function(){
+    if('_init' in F.controller[controller]){
+        F.controller[controller]._init();
+    }
+    F.controller[controller][action]();
+};
 if(controller in F.controller){
     if(action in F.controller[controller] && action.substring(0,1) !== '_'){
-        try{
-            if('_init' in F.controller[controller]){
-                F.controller[controller]._init();
+        if(DEBUG_MODE){
+            fn();
+            log(new Date().getTime() - START)
+        }else{
+            try{
+                fn();
+            }catch(e){
+                echo('<div>Sorry, we will back soon..</div>');
             }
-            F.controller[controller][action]();
-        }catch(e){
-            echo('<div style="color:#DD0000">');
-            log(e);
-            die('</div>');
         }
     }else{
         die('Error 2');
@@ -24,7 +30,6 @@ if(controller in F.controller){
 }
 
 //log(F.url());
-log(new Date().getTime() - START)
 
 // vim:ft=javascript
 %>
