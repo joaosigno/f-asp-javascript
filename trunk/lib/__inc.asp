@@ -54,10 +54,22 @@ var log = function(s){
 
 var debug = function(a, e){
     if(DEBUG_MODE){
+        var err;
+        if(e instanceof Error){
+            err = e; 
+        }else{
+            err = new Error();
+            var s = Array.prototype.slice.call(arguments, 1);
+            for(var i=0; i<s.length; i++){
+                err['message'+i] = s[i]
+            }
+        }
         echo('<div style="color:#d00;"><b>DEBUG:</b>');
         echo('<pre>' + F.encodeHTML(a.callee.toString()) + '</pre>');
-        log(e)
+        log(err)
         echo('</div>');
+    }else{
+        throw new Error('debug');
     }
 };
 
