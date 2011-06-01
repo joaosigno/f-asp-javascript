@@ -1,6 +1,8 @@
 ﻿<%
 F.namespace('F.controller');
 
+DEBUG_MODE = true;
+
 //  /index.asp?r=site&a=xxx
 F.controller.site = {
     //首页
@@ -112,8 +114,7 @@ F.controller.test = {
     },
 
     markdown: function(){
-        var text = new F.File('test/markdown.text').getText();
-        echo(F.string.markdown.toHTML(text));
+        echo(F.string.markdown.toHTML('# h1\n\n### h3\nhahaha'));
     }
 };
 

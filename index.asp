@@ -1,7 +1,6 @@
 ﻿<!--#include file="lib\__inc.asp"-->
 <!--#include file="F.controller.asp"-->
 <%
-DEBUG_MODE = true;
 var controller = F.get('r') || 'site';
 var action = F.get('a') || 'index';
 var fn = function(){
@@ -28,8 +27,6 @@ if(controller in F.controller){
 }else{
     die('Error 1');
 }
-
-//log(F.url());
 
 // vim:ft=javascript
 %>

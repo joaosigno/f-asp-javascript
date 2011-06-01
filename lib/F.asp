@@ -145,8 +145,11 @@ F.desc = function(){
 //获取url参数
 F.get = function(key){
     if(key === undefined){
-        var r = {};
-        F.enumerate(Request.QueryString, function(k, v){r[k] = v;});
+        var r = {},s = new Enumerator(Request.QueryString);
+        for(;!s.atEnd();s.moveNext()){
+            var x = s.item();
+            r[x] = Request.QueryString(x).Item;
+        }
         return r;
     }else{
         return Request.QueryString(key).Item;
@@ -156,8 +159,11 @@ F.get = function(key){
 //获取post参数
 F.post = function(key){
     if(key === undefined){
-        var r = {};
-        F.enumerate(Request.Form, function(k, v){r[k] = v;});
+        var r = {},s = new Enumerator(Request.Form);
+        for(;!s.atEnd();s.moveNext()){
+            var x = s.item();
+            r[x] = Request.Form(x).Item;
+        }
         return r;
     }else{
         return Request.Form(key).Item;
@@ -167,20 +173,14 @@ F.post = function(key){
 //获取server参数
 F.server = function(key){
     if(key === undefined){
-        var r = {};
-        F.enumerate(Request.ServerVariables, function(k, v){r[k] = v;});
+        var r = {},s = new Enumerator(Request.ServerVariables);
+        for(;!s.atEnd();s.moveNext()){
+            var x = s.item();
+            r[x] = Request.ServerVariables(x).Item;
+        }
         return r;
     }else{
         return Request.ServerVariables(key).Item;
-    }
-};
-
-//编译对象
-F.enumerate = function(obj, fn){
-    var e = new Enumerator(obj);
-    for(; !e.atEnd(); e.moveNext()){
-        var name = e.Item();
-        fn.call(obj, e.Item(), obj(name).Item());
     }
 };
 
@@ -232,6 +232,18 @@ F.url = function(){
     var url = F.server('URL'), query = F.server('QUERY_STRING');
     return (port == '443' ? 'https://' : 'http://') + server + 
         ((port=="80"||port=="443")?"":":"+port)+url+(query===''?'':'?'+query);
+};
+
+//执行脚本
+F.execute = function(path){
+    var js = new F.File(path).getText();
+    try{
+        return (new Function(js))();
+    }catch(e){
+        e.path = path;
+        e.js = js;
+        debug(arguments, e);
+    }
 };
 
 // vim:ft=javascript

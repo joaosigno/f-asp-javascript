@@ -23,6 +23,9 @@ F.File.prototype = {
 
     //文件类型
     getFileType: function(){
+        if(!this.exist()){
+			debug(arguments, this);
+        }
         var o = new ActiveXObject("ADODB.Stream")
         o.Type = 2;
         o.Mode = 3;
@@ -87,7 +90,7 @@ F.File.prototype = {
 
     getText: function(charset){
         if(!this.exist()){
-            throw new Error('文件不存在:' + this.path);
+			debug(arguments, this);
         }
         var s = new ActiveXObject("ADODB.Stream"), str;
         s.Type = 2;
@@ -101,6 +104,9 @@ F.File.prototype = {
     },
 
     getBinary: function(){
+        if(!this.exist()){
+			debug(arguments, this);
+        }
         var content;
         var s = new ActiveXObject("ADODB.Stream");
         s.Type = 1;
