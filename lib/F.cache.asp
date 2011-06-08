@@ -26,6 +26,15 @@ F.cache.remove = function(name) {
     Application.UnLock();
 };
 
+//遍历
+F.cache.each = function(fn){
+    var s = new Enumerator(Application.Contents);
+    for(;!s.atEnd();s.moveNext()){
+        var k = s.item();
+        fn.call(F.env, k, Application(k));
+    }
+};
+
 //缓存目录
 F.cache._path = 'cache';
 

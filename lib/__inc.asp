@@ -23,8 +23,10 @@ var START = new Date().getTime();
 <!--#include file="F.string.asp"-->
 <!--#include file="F.util.asp"-->
 <%
-Response.Charset="utf8";
-Session.CodePage=65001;
+Response.Charset = "utf8";
+Session.CodePage = 65001;
+Session.LCID = 2052;
+Session.Timeout = 20;
 
 //是否是调试状态
 var DEBUG_MODE = false;

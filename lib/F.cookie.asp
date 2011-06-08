@@ -57,5 +57,13 @@ F.cookie.remove = function(name) {
     }
 };
 
+//遍历
+F.cookie.each = function(fn){
+    var s = new Enumerator(Request.Cookies);
+    for(;!s.atEnd();s.moveNext()){
+        var k = s.item();
+        fn.call(F.env, k, F.cookie.get(k));
+    }
+};
 // vim:ft=javascript
 %>
