@@ -10,10 +10,18 @@ F.session.set = function(name, value) {
 };
 
 F.session.remove = function(name) {
-    if (name) {
+    if (name !== undefined) {
         Session.Contents.Remove(name);
     } else {
         Session.Contents.RemoveAll();
+    }
+};
+
+F.session.each = function(fn){
+    var s = new Enumerator(Session.Contents);
+    for(;!s.atEnd();s.moveNext()){
+        var k = s.item();
+        fn.call(F.env, k, Session(k));
     }
 };
 

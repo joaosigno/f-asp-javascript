@@ -95,9 +95,8 @@ F.isBoolen = function(arg) {
     return 'boolen' === typeof arg;
 }
 
-F.isUndefinded = function(arg){
-    var undefined;
-    return arg === undefined;
+F.isUndefinded = function(arg, u){
+    return arg === u;
 };
 
 F.extend = function(obj_desc, obj_source) {
