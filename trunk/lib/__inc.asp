@@ -21,7 +21,6 @@ var START = new Date().getTime();
 <!--#include file="F.json.asp"-->
 <!--#include file="F.session.asp"-->
 <!--#include file="F.string.asp"-->
-<!--#include file="F.vb.asp"-->
 <%
 Response.Charset = "utf8";
 Session.CodePage = 65001;
