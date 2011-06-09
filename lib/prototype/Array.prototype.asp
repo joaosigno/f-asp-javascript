@@ -6,7 +6,7 @@ if (!Array.prototype.forEach)
   {
     var len = this.length >>> 0;
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var thisp = arguments[1];
     for (var i = 0; i < len; i++)
@@ -23,7 +23,7 @@ if (!Array.prototype.every)
   {
     var len = this.length >>> 0;
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var thisp = arguments[1];
     for (var i = 0; i < len; i++)
@@ -43,11 +43,11 @@ if (!Array.prototype.reduce)
   {
     var len = this.length >>> 0;
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     // no value to return if no initial value and an empty array
     if (len == 0 && arguments.length == 1)
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var i = 0;
     if (arguments.length >= 2)
@@ -66,7 +66,7 @@ if (!Array.prototype.reduce)
 
         // if array contains no values, no initial value to return
         if (++i >= len)
-          throw new TypeError();
+          throw new Error("Type Error");
       }
       while (true);
     }
@@ -87,11 +87,11 @@ if (!Array.prototype.reduceRight)
   {
     var len = this.length >>> 0;
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     // no value to return if no initial value, empty array
     if (len == 0 && arguments.length == 1)
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var i = len - 1;
     if (arguments.length >= 2)
@@ -110,7 +110,7 @@ if (!Array.prototype.reduceRight)
 
         // if array contains no values, no initial value to return
         if (--i < 0)
-          throw new TypeError();
+          throw new Error("Type Error");
       }
       while (true);
     }
@@ -132,7 +132,7 @@ if (!Array.prototype.map)
   {
     var len = this.length >>> 0;
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var res = new Array(len);
     var thisp = arguments[1];
@@ -154,7 +154,7 @@ if (!Array.prototype.some)
         len = this.length >>> 0;
 
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var thisp = arguments[1];
     for (; i < len; i++)
@@ -174,7 +174,7 @@ if (!Array.prototype.filter)
   {
     var len = this.length >>> 0;
     if (typeof fun != "function")
-      throw new TypeError();
+      throw new Error("Type Error");
 
     var res = new Array();
     var thisp = arguments[1];

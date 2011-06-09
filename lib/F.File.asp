@@ -15,7 +15,6 @@ F.File = function(filename){
 F.File.fso = null;
 
 F.File.prototype = {
-
     //取得文件名
     getFileName: function(){
         return this.fso.GetFileName(this.path);

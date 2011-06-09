@@ -50,6 +50,74 @@ F.Folder.prototype = {
         }
     },
 
+    //获取所有的文件
+    map: function(enumForder, filter, fn){
+        var res = [];
+        var fo = this.fso.GetFolder(this.path);
+        var fc = new Enumerator(enumForder(fo));
+        if(filter instanceof RegExp){
+            var re = filter;
+            filter = function(f){
+                return re.test(f);
+            }
+        }else if(F.isString(filter) || F.isNumber(filter)){
+            var s = String(filter);
+            filter = function(f){
+                return f.indexOf(s) > -1;
+            }
+        }
+        if(typeof filter !== "function"){
+            filter = function(){return true;}
+        }
+        for (; !fc.atEnd(); fc.moveNext()){
+            var f = fc.item().Path;
+            if(filter(f)){
+                res.push(fn(f));
+            }
+        }
+        return res;
+    },
+
+    //返回子目录数组
+    folders: function(filter){
+        return this.map(function(forder){
+            return forder.SubFolders;
+        }, filter, function(path){
+            return new F.Folder(path);
+        });
+    },
+
+    //递归处理，返回所有的目录数组
+    allFolders: function(filter){
+        var res = [], fs = this.folders(filter), fn = arguments.callee;
+        res = res.concat(fs);
+        fs.forEach(function(forder){
+            res = res.concat(fn.call(forder, filter));
+        });
+        return res;
+    },
+
+    //返回文件数组
+    files: function(filter){
+        return this.map(function(forder){
+            return forder.files;
+        }, filter, function(path){
+            return new F.File(path);
+        });
+    },
+
+    //递归处理，返回所有的目录数组
+    allFiles: function(filter){
+        var res = [], fs = this.folders(), fn = arguments.callee;
+        fs.forEach(function(folder){
+            res = res.concat(folder.files(filter));
+        });
+        fs.forEach(function(forder){
+            res = res.concat(fn.call(forder, filter));
+        });
+        return res;
+    },
+
     //销毁示例资源
     dispose: function(){
         this.path = null;
