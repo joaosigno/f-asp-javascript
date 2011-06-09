@@ -18,6 +18,7 @@ F.Folder.prototype = {
     //设置路径
     setPath: function(path){
         this.path = (path.indexOf(':') > -1) ? path : Server.MapPath(path);
+        return this;
     },
 
     //返回路径
@@ -41,6 +42,7 @@ F.Folder.prototype = {
                 this.fso.CreateFolder(tmp);
             }
         }while(fs.length && fs[0])
+        return this;
     },
 
     //删除路径
@@ -48,6 +50,18 @@ F.Folder.prototype = {
         if(this.exist(path)){
             this.fso.DeleteFolder(this.path || path);
         }
+        return this;
+    },
+
+    //清空文件夹
+    empty: function(){
+        this.folders().forEach(function(folder){
+            folder.remove();
+        });
+        this.files().forEach(function(file){
+            file.remove();
+        });
+        return this;
     },
 
     //获取所有的文件

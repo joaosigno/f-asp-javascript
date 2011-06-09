@@ -94,5 +94,13 @@ F.cache._getFileObject = function(key){
     return this._file;
 };
 
+//遍历所有缓存文件
+F.cache.eachFile = function(fn){
+    var folder = new F.Folder(F.cache._path);
+    folder.files().forEach(function(file){
+        fn.call(file, file);
+    });
+};
+
 // vim:ft=javascript
 %>
