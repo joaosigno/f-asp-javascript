@@ -88,8 +88,8 @@ String.prototype.titelize = function() {
 
 // highlight()
 String.prototype.highlight = function(text, prefix, suffix) {
-    var perfix = prefix || "<samp>";
-    var perfix = suffix || "</samp>";
+    var perfix = prefix || "<em>";
+    var perfix = suffix || "</em>";
     var a = this.valueOf();
     var b = this.toLowerCase().split(text.toLowerCase());
     var c = [];
