@@ -17,7 +17,7 @@ F.controller.site = {
 
         var db = this._openDb();
         var model = db.model('jokes');
-        var page = model.page(F.get('p'), 10, 'id,title');
+        var page = model.page(F.get('p'), 'id,title', 10);
         db.close();
 
         assign('page_title', '列表页');
