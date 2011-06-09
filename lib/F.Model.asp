@@ -56,7 +56,7 @@ F.Model.prototype = {
     },
 
     //分页，可以满足基本的使用
-    page: function(page, count, fields, order, linkCount){
+    page: function(page, fields, count, order, linkCount){
         var p = {},
         total = this.count(),
         pk = this.pk(),
