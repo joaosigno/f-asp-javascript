@@ -1,6 +1,5 @@
 <%
 F.namespace('F.string');
-F.namespace('F.string.markdown');
 %>
 <!--#include file="thirdparty/md5.asp"-->
 <!--#include file="thirdparty/markdown.asp"-->

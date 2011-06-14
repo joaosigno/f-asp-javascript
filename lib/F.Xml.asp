@@ -83,7 +83,10 @@ F.Xml.parseXMLString = function(xml) {
     var xmlDOM = new ActiveXObject("Microsoft.XMLDOM");
     xmlDOM.async = false;
     xmlDOM.validateOnParse = false;
-    var success = xmlDOM.loadXML('<__root>' + xml + '</__root>');
+    if(xml.trim().indexOf('<?xml') !== 0){
+        xml = '<__root>' + xml + '</__root>';
+    }
+    var success = xmlDOM.loadXML(xml);
     if (success) {
         obj = xmlDOM.documentElement;
     }
