@@ -211,7 +211,11 @@ F.guid = function(){
 
 //进行html转意
 F.encodeHTML = function(text){
-    return Server.HTMLEncode(text);
+	return String(text).replace(/&/g,'&amp;')
+	    .replace(/</g,'&lt;')
+		.replace(/>/g,'&gt;')
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
 };
 
 //url转向

@@ -6,10 +6,11 @@ var START = new Date().getTime();
 <!--#include file="F.asp"-->
 <!--#include file="F.Connection.asp"-->
 <!--#include file="F.ExcelConnection.asp"-->
+<!--#include file="F.MsJetConnection.asp"-->
+<!--#include file="F.MsSqlConnection.asp"-->
 <!--#include file="F.File.asp"-->
 <!--#include file="F.Folder.asp"-->
 <!--#include file="F.Model.asp"-->
-<!--#include file="F.MsJetConnection.asp"-->
 <!--#include file="F.Smarty.asp"-->
 <!--#include file="F.Upload.asp"-->
 <!--#include file="F.User.asp"-->
@@ -87,7 +88,7 @@ var display = function(tpl, data){
 
 //为smarty插件配置include
 F.Smarty.prototype.getTemplate = function(file){
-    return new F.File('template/' + file).getText();
+    return new F.File(file).getText();
 };
 
 

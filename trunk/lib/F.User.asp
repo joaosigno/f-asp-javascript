@@ -85,6 +85,8 @@ F.User.prototype = {
     },
 
     checkLogin: function(name, password, isMd5){
+        name = name.trim().replace(/\s/g, '').replace(/[,"'.*%-+&<>=]+/g, '');
+        password = password.replace(/\W/g, '');
         if(this.check(name, password, isMd5)){
             F.session.set('F_User_login_ok', 1);
             return true;
@@ -93,13 +95,21 @@ F.User.prototype = {
     },
 
     logout: function(){
-        F.session.remove('F_User_login_ok');
+        F.User.logout();
     },
 
     isLogin: function(){
-        return !! F.session.get('F_User_login_ok');
+        return F.User.isLogin();
     }
 };
+
+F.User.isLogin = function(){
+    return !! F.session.get('F_User_login_ok');
+};
+
+F.User.logout = function(){
+    F.session.remove('f_user_login_ok');
+}
 
 
 //用户组别,根据权限大小定义组别的整数值
