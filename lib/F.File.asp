@@ -87,6 +87,30 @@ F.File.prototype = {
         return t;
     },
 
+    //返回文件的字节数
+    getSize: function(){
+        return this.fso.GetFile(this.path).Size;
+    },
+
+    //返回文件的相关信息
+    getInfo: function(){
+        var f = this.fso.GetFile(this.path);
+        return {
+            'DateCreated' : new Date(f.DateCreated),
+            'DateLastAccessed' : new Date(f.DateLastAccessed),
+            'DateLastModified' : new Date(f.DateLastModified),
+            'DriveVolumeName' : f.Drive.VolumeName,
+            'DriveLetter' : f.Drive.DriveLetter,
+            'IsRootFolder' : Boolean(f.IsRootFolder),
+            'Name' : f.Name,
+            'Path' : f.Path,
+            'ShortName' : f.ShortName,
+            'ShortPath' : f.ShortPath,
+            'Size' : f.Size,
+            'Type' : f.Type
+        }
+    },
+
     getText: function(charset){
         if(!this.exist()){
 			debug(arguments, this);

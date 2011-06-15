@@ -1,4 +1,4 @@
-<%
+﻿<%
 F.namespace('F.string');
 %>
 <!--#include file="thirdparty/md5.asp"-->
