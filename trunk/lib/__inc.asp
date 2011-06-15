@@ -1,4 +1,4 @@
-<%@LANGUAGE="JavaScript" CODEPAGE="65001"%>
+﻿<%@LANGUAGE="JavaScript" CODEPAGE="65001"%>
 <%
 var START = new Date().getTime();
 %>
