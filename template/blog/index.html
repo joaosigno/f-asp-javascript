@@ -9,7 +9,11 @@
     <dd>
         <ul class="post-list">
             {foreach $list as $i=>$p}
-            <li><a href="/?r=blog&a=view&id={$p.id}">{$p.title}</a><span>{new Date($p.create_time*1000).toISOString()}</span></li>
+            <li>
+                {if $is_login}<a href="/?r=admin&a=edit&id={$p.id}">[编辑]</a>{/if}
+                <a href="/?r=blog&a=view&id={$p.id}">{$p.title}</a>
+                <span>{new Date($p.create_time*1000).toISOString()}</span>
+            </li>
             {/foreach}
         </ul>
     </dd>

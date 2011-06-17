@@ -223,6 +223,16 @@ F.controller.admin = {
         echo('<p>压缩后字节数：' + f.getSize());
     },
 
+    //导出xml
+    xml: function(){
+        var db = this._db();
+        var model = db.model('posts');
+        var name = new Date().format('YYYY-MM-DD_hh-mm-ss') + '.xml'
+        model.exportXml(name);
+        db.close();
+        echo('导出成功， 文件名为：<a href="' + name + '">' + name + '</a>');
+    },
+
     x: function(){
         die('ok');
         var me = this;

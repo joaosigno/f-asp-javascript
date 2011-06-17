@@ -139,6 +139,32 @@ F.Model.prototype = {
         return this.connection.getHtmlTable(this.findAll(where, fields, order, limit, 1));
     },
 
+    //导出到xml文件
+    exportXml: function(fileName){
+        var file = new F.File(fileName).create();
+        var step = 50, i = 0;
+        var fields = this.fieldsType();
+        var rs = this.findAll('', '*', '', '', true);
+        var xml = ['<' , this.tableName , '>\n'];
+        while(!rs.Eof){
+            i++;
+            xml.push('\t<item>\n');
+            for(var i in fields){
+                xml.push('\t\t<', i, '><![CDATA[', String(rs(i).Value), ']]></', i, '>\n'); 
+            }
+            xml.push('\t</item>\n');
+            if(i % step === 0){
+                file.appendText(xml.join(''));
+                xml = [];
+            }
+            rs.MoveNext();
+        }
+        rs.Close();
+        rs = null;
+        xml.push('</', this.tableName, '>');
+        file.appendText(xml.join(''));
+    },
+
     //内部函数，用来获取where语句
     _getWhereString: function(where){
         if(where === undefined){

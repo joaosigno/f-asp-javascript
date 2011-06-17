@@ -200,16 +200,17 @@
             if(sugs.length){
                 coms = sugs;
             }
-            for(var i=0, l=coms.length; i<l; i++){
+            var i = 0;
+            while(coms[i] !== undefined){
                 if(coms[i] in map){
-                    map[coms[i]] = 1;
+                    coms.splice(i, 1);
+                    continue;
                 }
+                i++;
             }
             var temp = [];
             for(var i in map){
-                if(map[i] !== 1){
-                    temp.push(i);
-                }
+                temp.push(i);
             }
             temp = temp.sort();
             coms = temp.concat(sugs);
