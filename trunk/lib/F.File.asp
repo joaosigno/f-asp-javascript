@@ -203,10 +203,19 @@ F.File.prototype = {
         return new F.Folder(this.path.replace(/(\\|\/)[^\\\/]+$/, ''));
     },
 
-    //向文本文件中追加文本。只适合小文件
+    //向文本文件中追加文本。
     appendText: function(text, charset){
-        var content = this.getText();
-        return this.setText(content + text, charset);
+        var s = new ActiveXObject("ADODB.Stream");
+        s.Type = 2;
+        s.CharSet = charset || 'utf-8';
+        s.Open();
+        s.LoadFromFile(this.path);
+        s.Position = s.Size;
+        s.WriteText(text);
+        s.SaveToFile(this.path, 2);
+        s.Close();
+        s = null;
+        return this;
     },
 
     //设置路径
