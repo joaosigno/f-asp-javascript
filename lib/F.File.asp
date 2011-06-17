@@ -103,6 +103,7 @@ F.File.prototype = {
             'DriveLetter' : f.Drive.DriveLetter,
             'IsRootFolder' : Boolean(f.IsRootFolder),
             'Name' : f.Name,
+            'ParentFolder' : String(f.ParentFolder),
             'Path' : f.Path,
             'ShortName' : f.ShortName,
             'ShortPath' : f.ShortPath,
