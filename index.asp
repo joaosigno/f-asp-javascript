@@ -1,4 +1,5 @@
 ﻿<!--#include file="lib\__inc.asp"-->
+<!--#include file="F.config.asp"-->
 <!--#include file="F.controller.asp"-->
 <%
 var CONTROLLER = F.get('r') || 'site';

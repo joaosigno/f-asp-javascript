@@ -25,7 +25,7 @@ F.controller.site = F.controller.blog = {
         if(this.__db){
             return this.__db;
         }
-        this.__db = new F.MsJetConnection('zzzzxxxx.mdb').open();
+        this.__db = new F.MsJetConnection(F.config.dataPath).open();
         return this.__db;
     },
 
@@ -212,7 +212,7 @@ F.controller.admin = {
     },
 
     repair: function(){
-        var f = new F.File('zzzzxxxx.mdb');
+        var f = new F.File(F.config.dataPath);
         echo('<p>压缩前字节数：' + f.getSize());
         try{
             this._db().repair();
