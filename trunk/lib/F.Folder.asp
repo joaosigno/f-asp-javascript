@@ -31,6 +31,27 @@ F.Folder.prototype = {
         return this.fso.FolderExists(path || this.path);
     },
 
+    //获取文件夹的相关信息
+    getInfo: function(){
+        var f = this.fso.GetFolder(this.path);
+        var fso = this.fso, path = this.path;
+        return {
+            'AbsolutePathName' : fso.GetAbsolutePathName(path),
+            'DateCreated' : new Date(f.DateCreated),
+            'DateLastAccessed' : new Date(f.DateLastAccessed),
+            'DateLastModified' : new Date(f.DateLastModified),
+            'Drive' : String(f.Drive),
+            'IsRootFolder' : Boolean(f.IsRootFolder),
+            'Name' : f.Name,
+            'ParentFolder' : String(f.ParentFolder),
+            'Path' : String(f.Path),
+            'ShortName' : f.ShortName,
+            'ShortPath' : f.ShortPath,
+            'Size' : f.Size,
+            'Type' : f.Type
+        }
+    },
+
     //根据路径递归创建
     create: function(path){
         var ps = (this.path || path).split(':');
