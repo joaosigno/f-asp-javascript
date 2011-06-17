@@ -1,0 +1,18 @@
+{include file="template/blog/page_start.html"}
+{literal}
+<style type="text/css">
+    .post-list li span{font-size:12px;margin-left:10px;color:#999;}
+</style>
+{/literal}
+<dl>
+    <dt>所有文章</dt>
+    <dd>
+        <ul class="post-list">
+            {foreach $list as $i=>$p}
+            <li><a href="/?r=blog&a=view&id={$p.id}">{$p.title}</a><span>{new Date($p.create_time*1000).toISOString()}</span></li>
+            {/foreach}
+        </ul>
+    </dd>
+</dl>
+{include file="template/blog/page_end.html"}
+

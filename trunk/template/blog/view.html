@@ -1,0 +1,14 @@
+{include file="template/blog/page_start.html"}
+<dl>
+    <dt>{$post.title}</dt>
+    <dd class="adoc">
+        {if $is_login}
+        <div>
+            <a href="/?r=admin&a=edit&id={$post.id}">编辑</a>
+        </div>
+        {/if}
+        {$post.content}
+    </dd>
+</dl>
+{include file="template/blog/page_end.html"}
+
