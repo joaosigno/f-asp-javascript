@@ -230,6 +230,16 @@ F.Connection.prototype = {
     //获取schema
     getSchema: function(queryType, constraints){
         return this._connection.OpenSchema(queryType, constraints);
+    },
+
+    //执行sql文件
+    //注意：sql文件必须是每行一条语句
+    sourceSql: function(fileName){
+        var f = new F.File(fileName);
+        var conn = this._connection;
+        f.forEachLine(function(sql){
+            sql && conn.execute(sql.replace(/__RN__/g, '\n'));
+        });
     }
 };
 
