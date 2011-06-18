@@ -45,6 +45,8 @@ F.controller.site = F.controller.blog = {
 
     //首页
     index: function(){
+        var db = this._db();
+        var m = db.model('posts');
         var list = F.cache.get('list');
         if(list){
             list = F.json.parse(list);
@@ -124,6 +126,10 @@ F.controller.admin = {
 
     _TEXT_TYPE : F.controller.blog._TEXT_TYPE,
 
+    index: function(){
+        F.go('/?r=blog');
+    },
+
     login: function(userName){
         assign('error', '');
         if(F.isGet()){
@@ -180,6 +186,7 @@ F.controller.admin = {
         }
     },
 
+    //编辑文章
     edit: function(){
         var id = parseInt(F.get('id'));
         if(isNaN(id)){
@@ -211,6 +218,7 @@ F.controller.admin = {
         }
     },
 
+    //压缩数据库
     repair: function(){
         var f = new F.File(F.config.dataPath);
         echo('<p>压缩前字节数：' + f.getSize());
@@ -231,6 +239,12 @@ F.controller.admin = {
         model.exportXml(name);
         db.close();
         echo('导出成功， 文件名为：<a href="' + name + '">' + name + '</a>');
+    },
+
+    //清空缓存
+    removecache: function(){
+        F.cache.remove();
+        F.go('/?r=admin');
     },
 
     x: function(){

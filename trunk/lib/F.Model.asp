@@ -165,6 +165,42 @@ F.Model.prototype = {
         file.appendText(xml.join(''));
     },
 
+    //导出sql
+    exportSql: function(fileName){
+        var file = new F.File(fileName).create();
+        var step = 50, i = 0;
+        var fields = this.fieldsType();
+        var rs = this.findAll('', '*', '', '', true);
+        var sql = [];
+        while(!rs.Eof){
+            i++;
+            sql.push('insert into ', this.tableName, '(');
+            var keys = [];
+            var values = [];
+            for(var i in fields){
+                if(rs(i).Value === null){
+                    continue;
+                }
+                keys.push(i);
+                if(fields[i].base === 'number' || fields[i].base === 'boolean'){
+                    values.push(rs(i).Value || 0);
+                }else{
+                    values.push("'" + String(rs(i).Value).replace(/\r?\n/g, '__RN__').replace(/'/g, "''") + "'"); 
+                }
+            }
+            sql.push(keys.join(','), ') values(');
+            sql.push(values.join(','), ');\n');
+            if(i % step === 0){
+                file.appendText(sql.join(''));
+                sql = [];
+            }
+            rs.MoveNext();
+        }
+        rs.Close();
+        rs = null;
+        file.appendText(sql.join(''));
+    },
+
     //内部函数，用来获取where语句
     _getWhereString: function(where){
         if(where === undefined){

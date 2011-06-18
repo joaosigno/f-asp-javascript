@@ -218,6 +218,39 @@ F.File.prototype = {
         return this;
     },
 
+    //读取文件的部分内容
+    getTextPart: function(start, end, charset){
+        var s = new ActiveXObject("ADODB.Stream"), str;
+        s.Type = 2;
+        s.CharSet = charset || 'utf-8';
+        s.Open();
+        s.LoadFromFile(this.path);
+        s.Position = start;
+        str = s.ReadText(end - start);
+        s.Close();
+        s = null;
+        return str;
+    },
+
+    //按行处理文件内容，可以操作较大的文件
+    forEachLine: function(fn, charset){
+        charset = charset || 'utf-8';
+        var s = new ActiveXObject("ADODB.Stream");
+        s.Type = 2;
+        s.CharSet = charset;
+        s.Open();
+        s.LoadFromFile(this.path);
+        var temp, arr, step = 5000;
+        var ext = '';
+        while(temp = s.ReadText(step)){
+            arr = (ext + temp).split('\n');
+            ext = arr.pop();
+            arr.forEach(fn);
+        }
+        s.Close();
+        s = null;
+    },
+
     //设置路径
     setPath: function(path){
         this.path = (path.indexOf(':') > -1) ? path : Server.MapPath(path);
