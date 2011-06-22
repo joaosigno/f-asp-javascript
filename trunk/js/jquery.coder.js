@@ -1,8 +1,8 @@
 /** 
- *           File:  jquery.coder.js
+ *           File:  js\jquery.coder.js
  *         Author:  Feng Weifeng(jpssff@gmail.com)
  *       Modifier:  Feng Weifeng(jpssff@gmail.com)
- *       Modified:  2011-06-14 16:14:13  
+ *       Modified:  2011-06-20 09:33:38  
  *    Description:  将文本框变成一个编辑器。
  *      Copyright:  (c) 2011-2021 wifeng.cn
  */
@@ -12,7 +12,6 @@
             expandtab : true,    // 是否将tab转化为空格
             tabstop : 4,         // tab键对应的空格数
             cursorHolder : '^!', // 光标占位符
-            snippetKey : 9,      // tab键补全代码
             fileType : 'html',   // 默认为html
             snippets : {},       // 默认没有任何代码片段
             autoindent: true     // 是否自动缩进
@@ -20,8 +19,6 @@
 
         var $this = this;
 
-        //键值
-        var TAB_KEY = 9, F1_KEY = 112, ENTER_KEY = 13, Y_KEY=89, Z_KEY=90, UP_KEY=38, DOWN_KEY=40;
         var CODER_KEY = 'WIFENG_CN_CODER', coder_data;
 
         //用于修改配置
@@ -43,128 +40,389 @@
         //状态
         var state = new State($this);
 
-        return $this.keydown(function(e){
-            var _this = this;
-            var selection = $this.getSelection();
+        var rangeHandler = {
+            'Tab' : function($this, selection){
+                indentLines($this, indentString, selection);
+                state.add();
+                return false;
+            },
 
-            //如果没有选中文本
-            if(selection.start === selection.end){
-                //代码片段替换
-                if(e.keyCode === opt.snippetKey){
-                    var word = getWordBeforeCursor($this, selection);
-                    if(snippets[opt.fileType] && (word in snippets[opt.fileType])){
-                        state.add();
-                        replaceSnippet($this, word, snippets, opt.fileType, indentString, opt.cursorHolder);
-                        state.add();
-                        return false;
-                    }
-                }
+            'Shift-Tab' :function($this, selection){
+                reindentLines($this, indentString);
+                state.add();
+                return false;
+            },
 
-                //将tab变成空格
-                if(opt.expandtab){
-                    if(e.keyCode === TAB_KEY){
-                        state.add();
-                        var se = $this.getSelection();
-                        $this.replaceSelection(indentString);
-                        $this.setSelection(se.start + indentString.length);
-                        return false;
-                    }
+            //大小写互换
+            'Ctrl-K': function($this, selection){
+                var text = selection.text;
+                if(/[a-z]/.test(text)){
+                    text = text.toUpperCase();
+                }else{
+                    text = text.toLowerCase();
                 }
+                $this.replaceSelection(text);
+                $this.setSelection(selection.start, selection.end);
+                return false;
+            },
+
+            //词首字母大写
+            'Ctrl-Shift-U': function($this, selection){
+                var text = selection.text;
+                text = text.replace(/\b(\w)(\w*)\b/g, function(a, $1, $2){
+                    return $1.toUpperCase() + $2.toLowerCase();
+                });
+                $this.replaceSelection(text);
+                $this.setSelection(selection.start, selection.end);
+                return false;
             }
-            //光标选中了文本
-            else{
-                if(e.shiftKey){
-                    //如果是同时按下shift和tab键，进行反缩进
-                    if(e.keyCode === TAB_KEY){
-                        reindentLines($this, indentString);
-                        state.add();
-                        return false;
-                    }
-                }else if(e.keyCode === TAB_KEY){
-                    indentLines($this, indentString);
+        };
+
+        var keyHandler = {
+            //Tab键
+            'Tab' : function($this, selection){
+                //代码片段
+                var word = getWordBeforeCursor($this, selection);
+                if(snippets[opt.fileType] && (word in snippets[opt.fileType])){
+                    state.add();
+                    replaceSnippet($this, word, snippets, opt.fileType, indentString, opt.cursorHolder);
                     state.add();
                     return false;
                 }
-            }
-
-            //阻止浏览器的对tab键的默认行为
-            if(e.keyCode === TAB_KEY){
+                //如果是设置了tab变空格
+                if(opt.expandtab){
+                    state.add();
+                    $this.replaceSelection(indentString);
+                    $this.setSelection(selection.start + indentString.length);
+                    state.add();
+                    return false;
+                }
                 //直接增加tab
-                appendWords($this, $this.getSelection().start, '\t');
+                appendWords($this, selection.start, '\t');
                 state.add();
                 return false;
-            }
+            },
 
-            //单词提示
-            if(e.ctrlKey && e.keyCode === DOWN_KEY){
+            //注释行
+            'Alt-Ctrl-/': function($this, selection){
+                var cs = window.prompt('输入注释符号', '//');
+                    indentLines($this, cs, selection);
+                    return false;
+            },
+
+            //删除行注释
+            'Ctrl-Shift-/': function($this, selection){
+                var cs = window.prompt('输入注释符号', '//');
+                    reindentLines($this, cs);
+                    return false;
+            },
+
+            //向下补全
+            'Ctrl-Down': function($this, selection){
                 var word = getWordBeforeCursor($this, selection);
                 if(word){
                     completeWord($this, selection, word, dictionary, 1);
                 }
                 return false;
-            }
+            },
 
-            //单词提示
-            if(e.ctrlKey && e.keyCode === UP_KEY){
+            'Ctrl-N': function($this, selection){
+                return this['Ctrl-Down']($this, selection);
+            },
+
+            //向上补全
+            'Ctrl-Up': function($this, selection){
                 var word = getWordBeforeCursor($this, selection);
                 if(word){
                     completeWord($this, selection, word, dictionary, -1);
                 }
                 return false;
-            }
+            },
 
             //自动缩进
-            if(opt.autoindent && !e.ctrlKey && e.keyCode === ENTER_KEY){
-                state.add();
-                var indentCount = getIndetCount($this.val(), selection.start, indentString);
-                if(indentCount > 0){
-                    var str = '\n' + new Array(indentCount + 1).join(indentString);
-                    appendWords($this, selection.start, str);
+            'Enter': function($this, selection){
+                if(opt.autoindent){
                     state.add();
-                    return false;
+                    var indentCount = getIndetCount($this.val(), selection.start, indentString);
+                    if(indentCount > 0){
+                        var str = '\n' + new Array(indentCount + 1).join(indentString);
+                        appendWords($this, selection.start, str);
+                        state.add();
+                        return false;
+                    }
                 }
-            }
+            },
 
-            //运行
-            if(e.ctrlKey && e.keyCode === ENTER_KEY){
+            //运行代码
+            'Ctrl-Enter': function($this, selection){
                 try{
                     runCode($this);
                 }catch(e){}
-                _this.focus();
+                $this.focus();
                 return false;
-            }
+            },
 
             //帮助
-            if(e.keyCode === F1_KEY){
-                e.preventDefault();
+            'F1': function($this, selection){
                 alert(
-                   '** js coder ** \n\n' + 
-                   'F1 -- show this help\n' +
-                   'Tab -- indent selected lines\n' +
-                   'Shift-Tab -- indent back\n' +
-                   'Ctrl-Z  -- undo\n' +
-                   'Ctrl-Y  -- redo\n' +
-                   'Ctrl-↓  -- complete word next\n' + 
-                   'Ctrl-↑  -- complete word prevous\n' + 
-                   'Ctrl-Enter -- run the code in a new window\n\n' + 
-                   '@ 2011 by fengweifeng'
+                    '** js coder ** \n\n' + 
+                    'F1                -- 帮助\n' +
+                    'Alt-Delete        -- 删除当前单词\n' +
+                    'Alt-Shift-Delete  -- 删除当前行\n' +
+                    'Alt-Shift-Down    -- 向下移动选中行\n' +
+                    'Alt-Shift-Up      -- 向上移动选中行\n' +
+                    'Alt-Ctrl-Right    -- 移动光标到下一编辑区\n' +
+                    'Alt-Ctrl-Left     -- 移动光标到上一编辑区\n' +
+                    'Ctrl-D            -- 插入日期\n' +
+                    'Ctrl-M            -- 插入时间\n' +
+                    'Ctrl-K            -- 切换大小写\n' +
+                    'Ctrl-Shift-U      -- 单词首字符大写\n' +
+                    'Ctrl-R            -- 选中当前行\n' +
+                    'Alt-Ctrl-/        -- 注释行\n' +
+                    'Ctrl-Shift-/      -- 去除注释\n' +
+                    'Ctrl-Delete       -- 删除到当前单词尾\n' +
+                    'Ctrl-Shift-Delete -- 删除至行尾\n' +
+                    'Ctrl-J            -- 复制当前行\n' +
+                    'Ctrl-Shift-J      -- 合并选中行\n' +
+                    'Ctrl-Z            -- 撤销\n' +
+                    'Ctrl-Y            -- 重做\n' +
+                    'Ctrl-↓            -- 自动完成单词\n' +
+                    'Ctrl-↑            -- 反向完成单词\n' +
+                    'Tab               -- 缩进行,替换片段\n' +
+                    'Shift-Tab         -- 反向缩进\n' +
+                    'Ctrl-Enter        -- 新窗口运行代码\n\n' +
+                    '@ 2011 by fengweifeng'
                 );
                 return false;
-            }
+            },
 
-            //撤销一步
-            if(e.ctrlKey && e.keyCode === Z_KEY){
+            //撤销
+            'Ctrl-Z': function($this, selection){
                 state.undo();
-                e.preventDefault();
                 return false;
+            },
+
+            //重做
+            'Ctrl-Y': function($this, selection){
+                state.redo();
+                return false;
+            },
+
+            //插入日期
+            'Ctrl-D': function($this, selection){
+                state.add();
+                var s = '', d = new Date();
+                s += d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+                $this.replaceSelection(s);
+                $this.setSelection(selection.start + s.length);
+                state.add();
+                return false;
+            },
+
+            //插入时间
+            'Ctrl-M': function($this, selection){
+                state.add();
+                var s = '', d = new Date();
+                s += d.getHours() + ':' + d.getMinutes();
+                $this.replaceSelection(s);
+                $this.setSelection(selection.start + s.length);
+                state.add();
+                return false;
+            },
+
+            //删除至行尾
+            'Ctrl-Shift-Delete': function($this, selection){
+                state.add();
+                var value = $this.val();
+                var end = value.indexOf('\n', selection.end);
+                if(end === -1){
+                    end = value.length;
+                }
+                $this.setSelection(selection.start, end).replaceSelection('');
+                $this.setSelection(selection.start);
+                return false;
+            },
+
+            //删除到当前单词结尾
+            'Ctrl-Delete': function($this, selection){
+                state.add();
+                var value = $this.val().slice(selection.start);
+                if(value.length){
+                    var s = value.substring(0, 1);
+                    var index = 1;
+                    if(/\w/.test(s)){
+                        index = value.search(/\W/);
+                    }
+                    $this.setSelection(selection.start, selection.start + index).replaceSelection('');
+                    $this.setSelection(selection.start);
+                    state.add();
+                }
+                return false;
+            },
+
+            //删除当前行
+            'Alt-Shift-Delete': function($this, selection){
+                state.add();
+                var se = getLinesSelection($this, selection);
+                $this.setSelection(se.lineStart, se.lineEnd + 1).replaceSelection('');
+                $this.setSelection(se.lineStart);
+                state.add();
+                return false;
+            },
+
+            //删除当前单词
+            'Alt-Delete': function($this, selection){
+                state.add();
+                var se = getWordSelection($this, selection);
+                $this.setSelection(se.start, se.start === se.end ? se.end + 1 : se.end).replaceSelection('');
+                $this.setSelection(se.start);
+                state.add();
+                return false;
+            },
+
+            //复制当前行
+            'Ctrl-J': function($this, selection){
+                state.add();
+                var se = getLinesSelection($this, selection);
+                var text = se.lineText + '\n' + se.lineText;
+                $this.setSelection(se.lineStart, se.lineEnd).replaceSelection(text);
+                $this.setSelection(se.lineStart + text.length);
+                state.add();
+                return false;
+            },
+
+            //合并行
+            'Ctrl-Shift-J': function($this, selection){
+                state.add();
+                var se = getLinesSelection($this, selection);
+                var single = se.lineText.indexOf('\n') === -1;
+                if(single){
+                    $this.setSelection(se.lineStart, se.lineEnd + 1);
+                    se = getLinesSelection($this);
+                }
+                var n = 0;
+                var text = se.lineText.replace(/\n/g, function(){
+                    n ++;
+                    return '';
+                });
+                $this.setSelection(se.lineStart, se.lineEnd).replaceSelection(text);
+                $this.setSelection(se.lineStart, se.lineEnd - n);
+                state.add();
+                return false;
+            },
+
+            //向下移动选中行
+            'Alt-Shift-Down': function($this, selection){
+                state.add();
+                var se = getLinesSelection($this, selection);
+                $this.setSelection(se.lineStart, se.lineEnd + 1);
+                var se2 = getLinesSelection($this);
+                if(se2.lineEnd !== se.lineEnd){
+                    var text = se2.lineText.slice(se.lineText.length + 1);
+                    $this.setSelection(se2.lineStart, se2.lineEnd).replaceSelection(text + '\n' + se.lineText);
+                    $this.setSelection(se.lineStart + text.length + 1, se2.lineEnd);
+                    state.add();
+                }else{
+                    $this.setSelection(selection.start, selection.end);
+                }
+                return false;
+            },
+
+            //向上移动选中行
+            'Alt-Shift-Up': function($this, selection){
+                state.add();
+                var se = getLinesSelection($this, selection);
+                $this.setSelection(se.lineStart - 1, se.lineEnd);
+                var se2 = getLinesSelection($this);
+                if(se2.lineStart !== se.lineStart){
+                    var text = se2.lineText.slice(0, se2.lineText.length - se.lineText.length - 1);
+                    $this.setSelection(se2.lineStart, se2.lineEnd).replaceSelection(se.lineText + '\n' + text);
+                    $this.setSelection(se2.lineStart, se2.lineStart + se.lineText.length);
+                    state.add();
+                }else{
+                    $this.setSelection(selection.start, selection.end);
+                }
+                return false;
+            },
+
+            //选中当前行
+            'Ctrl-R': function($this, selection){
+                var se = getLinesSelection($this, selection);
+                $this.setSelection(se.lineStart, se.lineEnd);
+                return false;
+            },
+
+            //移动到下一个编辑区
+            'Alt-Ctrl-Right': function($this, selection){
+                var value = $this.val().substring(selection.start);
+                var indexMatch = ['""', "''", '><'];
+                var searchMatch = /\b((\w|\d)+)>(\n|\s)+<\/\1/;
+                var index = [], temp;
+                for(var i=0; i<indexMatch.length; i++){
+                    temp = value.indexOf(indexMatch[i]);
+                    if(temp > -1){
+                        index.push(temp + 1);
+                    }
+                }
+                temp = value.search(searchMatch);
+                if(temp > -1){
+                    temp = value.indexOf('<', temp)
+                    index.push(temp);
+                }
+                if(index.length){
+                    $this.setSelection(selection.start + Math.min.apply(null, index));
+                }
+                return false;
+            },
+
+            //移动到上一个编辑区
+            'Alt-Ctrl-Left': function($this, selection){
+                var value = $this.val().substring(0, selection.start);
+                var indexMatch = ['""', "''", '><'];
+                var searchMatch = /\b((\w|\d)+)>(\n|\s)+<\/\1/;
+                var index = [], temp;
+                for(var i=0; i<indexMatch.length; i++){
+                    temp = value.lastIndexOf(indexMatch[i]);
+                    if(temp > -1){
+                        index.push(temp + 1);
+                    }
+                }
+                var m = -1, v = value;
+                while((temp = v.search(searchMatch) !== -1)){
+                    m = temp;
+                    v = v.substring(m);
+                }
+                temp = m;
+                if(temp > -1){
+                    temp = value.indexOf('<', temp)
+                    index.push(temp);
+                }
+                if(index.length){
+                    $this.setSelection(Math.max.apply(null, index));
+                }
+                return false;
+            }
+        };
+
+        return $this.keydown(function(e){
+            var action = getActionName(e);
+            var selection = $this.getSelection();
+
+            //如果选中文本
+            if(selection.start !== selection.end){
+                if(action in rangeHandler){
+                    if(rangeHandler[action]($this, selection) === false){
+                        return false;
+                    }
+                };
             }
 
-            //重做一步
-            if(e.ctrlKey && e.keyCode === Y_KEY){
-                state.redo();
-                e.preventDefault();
-                return false;
-            }
+            //执行对应的功能
+            if(action in keyHandler){
+                if(keyHandler[action]($this, selection) === false){
+                    return false;
+                }
+            };
 
             //保存状态
             state.add();
@@ -183,6 +441,63 @@
     $.dictionary = function(data){
         $.fn.coder._dictionary = data;
     };
+
+    //获取按键的字符串表示
+    var getActionName = (function(){
+        var specialKeys = {
+            112 : 'F1',
+            113 : 'F2',
+            114 : 'F3',
+            115 : 'F4',
+            116 : 'F5',
+            117 : 'F6',
+            118 : 'F7',
+            119 : 'F8',
+            120 : 'F9',
+            121 : 'F10',
+            122 : 'F11',
+            123 : 'F12',
+            13  : 'Enter',
+            144 : 'Num',
+            144 : 'Numlock',
+            145 : 'Scrolllock',
+            187 : 'Plus',
+            189 : 'Minus',
+            19  : 'Break',
+            19  : 'Pause',
+            191 : '/',
+            20  : 'Caps',
+            20  : 'Capslock',
+            27  : 'Esc',
+            32  : 'Space',
+            33  : 'Pageup',
+            34  : 'Pagedown',
+            35  : 'End',
+            36  : 'Home',
+            37  : 'Left',
+            38  : 'Up',
+            39  : 'Right',
+            40  : 'Down',
+            45  : 'Insert',
+            46  : 'Delete',
+            8   : 'Backspace',
+            9   : 'Tab'
+        };
+
+        return function(e){
+            var map = [];
+            e.altKey && (map.push('Alt'));
+            e.ctrlKey && (map.push('Ctrl'));
+            e.shiftKey && (map.push('Shift'));
+            if(e.keyCode > 64 && e.keyCode < 91){
+                map.push(String.fromCharCode(e.keyCode));
+            }else if(e.keyCode in specialKeys){
+                map.push(specialKeys[e.keyCode]);
+            }
+            return map.join('-');
+        };
+    })();
+
 
     //自动完成单词
     function completeWord($this, selection, word, dict, dir){
@@ -364,10 +679,10 @@
         $this.setSelection(cursor);
     }
 
-    //获取选中完整行的信息
-    function getLinesSelection($t){
+    //获取完整行的信息
+    function getLinesSelection($t, selection){
         var $this = $t;
-        var se = $this.getSelection();
+        var se = selection || $this.getSelection();
         var value = $this.val();
         var lastBr = value.substring(0, se.start).lastIndexOf('\n');
         if(lastBr > -1){
@@ -381,14 +696,35 @@
         }else{
             se.lineEnd = value.length;
         }
-        se.lineText = value.substring(se.lineStart, se.lineEnd);
+        se.lineText = value.substring(se.lineStart, se.lineEnd).replace(/\r/g, '');
         return se;
     }
 
-    //缩进多行
-    function indentLines($t, indentString){
+    //获取单词信息
+    function getWordSelection($t, selection){
         var $this = $t;
-        var se = getLinesSelection($this);
+        var se = selection || $this.getSelection();
+        var linese = getLinesSelection($this, se);
+        var start = se.start - linese.lineStart, 
+        end = start,
+        line = linese.lineText;
+        while(/\w/.test(line.charAt(start - 1))){
+            start --;
+        }
+        while(/\w/.test(line.charAt(end))){
+            end ++;
+        }
+        return {
+            start:linese.lineStart + start, 
+            end:linese.lineStart + end, 
+            text:line.substring(start, end)
+        };
+    }
+
+    //缩进多行
+    function indentLines($t, indentString, selection){
+        var $this = $t;
+        var se = getLinesSelection($this, selection);
         var lines = se.lineText.split('\n');
         var temp = 0, step = indentString.length;
         for(var i=0, l=lines.length; i<l; i++){
@@ -409,6 +745,14 @@
             if(lines[i].indexOf(indentString) === 0){
                 lines[i] = lines[i].slice(step);
                 temp += step;
+            }else if(lines[i].indexOf('\t') === 0){
+                lines[i] = lines[i].slice(1);
+                temp ++;
+            }else if(lines[i].indexOf(' ') === 0){
+                lines[i] = lines[i].replace(/^ +/g, function(s){
+                    temp += s.length;
+                    return '';
+                });
             }
         }
         $this.setSelection(se.lineStart, se.lineEnd).replaceSelection(lines.join('\n'));
