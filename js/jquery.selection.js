@@ -91,14 +91,14 @@
 				temp2++;
 			}
 
-			var r = {
+			var res = {
 				start: text1.length + rn1 - temp1,
 				end: text1.length + rn1 + text.length + rn - temp1 - temp2,
 				length: r_text.length,
 				text: r_text
 			};
 
-			return r;
+			return res;
 		}
 	};
 
@@ -116,7 +116,7 @@
 				range.moveStart("character", start);
 				range.moveEnd("character", end - start);
 				range.select();
-			} else if (this.selectionStart) {
+			} else if ('selectionStart' in this) {
 				this.selectionStart = start;
 				this.selectionEnd = end;
 				this.focus();
