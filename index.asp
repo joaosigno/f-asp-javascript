@@ -1,6 +1,6 @@
 ﻿<!--#include file="lib\__inc.asp"-->
 <!--#include file="F.config.asp"-->
-<!--#include file="F.controller.asp"-->
+<!--#include file="controller/__inc.asp"-->
 <%
 var CONTROLLER = F.get('r') || 'site';
 var ACTION = F.get('a') || 'index';

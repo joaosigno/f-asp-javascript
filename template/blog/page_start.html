@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <meta name="viewport" content="width=device-width" />
-        <title>{$page_title}</title>
+        <title>{$page_title}_wifeng.cn</title>
         <link rel="stylesheet" href="css/wf.css" type="text/css" />
         <script src="js/jquery.js" type="text/javascript"></script>
     </head>
@@ -12,16 +12,24 @@
             <div id="head">
                 <a id="logo" href="/?r=blog"><img src="css/logo.gif" alt="WIFENG.CN" /></a>
                 <ul class="btn">
+                    {if !$is_login}
+                    <li><a href="/?r=admin&a=login">登录</a></li>
+                    {/if}
+                    <li><a href="/js/coder.html">代码编辑器</a></li>
+                </ul>
+                <ul class="btn">
                     {if $is_login}
                     <li><a href="/?r=admin&a=logout">退出</a></li>
                     <li><a href="/?r=admin&a=add">添加文章</a></li>
+                    <li><a href="/?r=admin&a=file">文件管理</a></li>
+                    <li><a href="/?r=admin&a=comment">评论管理</a></li>
                     <li><a href="/?r=admin&a=repair">修复数据库</a></li>
                     <li><a href="/?r=admin&a=xml">导出XML</a></li>
+                    <li><a href="/?r=admin&a=sql">导出SQL</a></li>
                     <li><a href="/?r=admin&a=removecache">清空缓存</a></li>
-                    {else}
-                    <li><a href="/?r=admin&a=login">登录</a></li>
                     {/if}
                 </ul>
+                <div class="clear"></div>
             </div>
             <div id="nav">
                 <div class="rl">
