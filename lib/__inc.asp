@@ -4,6 +4,14 @@ var START = new Date().getTime();
 %>
 <!--#include file="prototype/__inc.asp"-->
 <!--#include file="F.asp"-->
+<!--#include file="F.string.asp"-->
+<!--#include file="F.number.asp"-->
+<!--#include file="F.date.asp"-->
+<!--#include file="F.json.asp"-->
+<!--#include file="F.session.asp"-->
+<!--#include file="F.ajax.asp"-->
+<!--#include file="F.cache.asp"-->
+<!--#include file="F.cookie.asp"-->
 <!--#include file="F.Connection.asp"-->
 <!--#include file="F.ExcelConnection.asp"-->
 <!--#include file="F.MsJetConnection.asp"-->
@@ -16,12 +24,6 @@ var START = new Date().getTime();
 <!--#include file="F.User.asp"-->
 <!--#include file="F.Xml.asp"-->
 <!--#include file="F.Zip.asp"-->
-<!--#include file="F.ajax.asp"-->
-<!--#include file="F.cache.asp"-->
-<!--#include file="F.cookie.asp"-->
-<!--#include file="F.json.asp"-->
-<!--#include file="F.session.asp"-->
-<!--#include file="F.string.asp"-->
 <%
 Response.Charset = "utf8";
 Session.CodePage = 65001;

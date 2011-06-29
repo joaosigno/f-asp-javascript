@@ -12,5 +12,7 @@ F.MsSqlConnection = function(dataSource, initialCatalog, userId, password){
 };
 F.inherits(F.MsSqlConnection, F.Connection);
 
+F.MsSqlConnection.prototype.getTypeString = function(adoType, flags){
+};
 // vim:ft=javascript
 %>

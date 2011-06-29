@@ -29,7 +29,7 @@ F.string.base64Encode = function(str) {
         b64 = b64.slice(0, -1) + "=";
     }
     return b64;
-}
+};
 
 
 F.string.base64Decode = function(b64) {
@@ -51,7 +51,7 @@ F.string.base64Decode = function(b64) {
         str = str.slice(0, (len % 4 - 4) * 3);
     }
     return unescape(str);
-}
+};
 
 
 F.string.base64EncodeUTF8 = function(str) {
@@ -73,7 +73,7 @@ F.string.base64EncodeUTF8 = function(str) {
         b64 = b64.slice(0, -1) + "=";
     }
     return b64;
-}
+};
 
 
 F.string.base64DecodeUTF8 = function(b64) {
@@ -95,7 +95,7 @@ F.string.base64DecodeUTF8 = function(b64) {
         str = str.slice(0, (len % 4 - 4) * 3);
     }
     return decodeURIComponent(str);
-}
+};
 
 F.string.base64EncodeUTF16 = function(str) {
     var b64ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
@@ -120,7 +120,7 @@ F.string.base64EncodeUTF16 = function(str) {
         b64 = b64.slice(0, -2) + "==";
     }
     return b64;
-}
+};
 
 
 F.string.base64DecodeUTF16 = function(b64) {
@@ -146,8 +146,7 @@ F.string.base64DecodeUTF16 = function(b64) {
         }
     }
     return unescape(str);
-}
-
+};
 
 // vim:ft=javascript
 %>

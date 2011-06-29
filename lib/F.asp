@@ -193,6 +193,11 @@ F.isPost = function(){
     return F.server("REQUEST_METHOD").toLowerCase() === 'post';
 };
 
+//是否是ajax请求
+F.isAjax = function(){
+    return F.server('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest';
+};
+
 //获取ip地址
 F.ip = function(){
     var proxy = F.server("HTTP_X_FORWARDED_FOR"),

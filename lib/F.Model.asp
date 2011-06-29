@@ -34,18 +34,53 @@ F.Model.prototype = {
         var r = {};
         var rs = this.connection.getSchema(4, this._constraints);
         var name, type;
+        var Type = F.Model.AdoDataType;
+        //die(this.connection.getHtmlTable(rs));
         while(!rs.Eof){
             type = rs('DATA_TYPE').Value;
             name = rs('COLUMN_NAME').Value;
             r[name] = {
                 type: type,
-                desc: F.Model.AdoDataType[type].name,
-                base: F.Model.AdoDataType[type].type
+                desc: Type[type].name,
+                base: Type[type].type,
+                isNullable: Boolean(rs('IS_NULLABLE').Value),
+                hasDefault: Boolean(rs('COLUMN_DEFAULT').Value),
+                defaultValue: rs('COLUMN_DEFAULT').Value,
+                flags: rs('COLUMN_FLAGS').Value,
+                dataType: rs('DATA_TYPE').Value,
+                maxLength: rs('CHARACTER_MAXIMUM_LENGTH').Value,
+                numPrecision: rs('NUMERIC_PRECISION').Value
             };
             rs.MoveNext();
         }
         rs.Close();
+        rs = null;
         return r;
+    },
+
+    getCreateSql: function(){
+        var pk = this.pk();
+        var fields = this.fieldsType();
+        var sql = ['CREATE TABLE ' + this.tableName + '('];
+        var conn = this.connection;
+        for(var f in fields){
+            var field = fields[f];
+            var type = conn.getTypeString(field.type, field.flags);
+            sql.push('[' + f, '] ' + type);
+            if(String(field.maxLength) !== 'null' && field.maxLength > 0){
+                sql.push('(' + field.maxLength + ')');
+            }
+            if(pk === f){
+                sql.push(' PRIMARY KEY');
+            }
+            if(!field.isNullable){
+                sql.push(' NOT NULL');
+            }
+            sql.push(',');
+        }
+        sql.pop();
+        sql.push(');');
+        return sql.join('');
     },
 
     //统计数量
@@ -135,8 +170,8 @@ F.Model.prototype = {
     },
 
     //得到表的html
-    html: function(where, fields, order, limit){
-        return this.connection.getHtmlTable(this.findAll(where, fields, order, limit, 1));
+    html: function(where, fields, order, limit, opt){
+        return this.connection.getHtmlTable(this.findAll(where, fields, order, limit, 1), opt);
     },
 
     //导出到xml文件
@@ -171,6 +206,8 @@ F.Model.prototype = {
         var step = 50, i = 0;
         var fields = this.fieldsType();
         var rs = this.findAll('', '*', '', '', true);
+        var createSql = this.getCreateSql();
+        file.appendText(createSql + '\n');
         var sql = [];
         while(!rs.Eof){
             i++;
@@ -181,7 +218,7 @@ F.Model.prototype = {
                 if(rs(i).Value === null){
                     continue;
                 }
-                keys.push(i);
+                keys.push('['+i+']');
                 if(fields[i].base === 'number' || fields[i].base === 'boolean'){
                     values.push(rs(i).Value || 0);
                 }else{
@@ -203,7 +240,7 @@ F.Model.prototype = {
 
     //内部函数，用来获取where语句
     _getWhereString: function(where){
-        if(where === undefined){
+        if(where === undefined || where === null){
             where = '';
         }else if(F.isArray(where)){
             where = where.join(' and ');
