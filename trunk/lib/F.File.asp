@@ -268,6 +268,17 @@ F.File.prototype = {
         return this;
     },
 
+    //改名
+    rename: function(name){
+        name = name.trim();
+        if(name!=='' && this.getFileName()!==name){
+            var f = this.fso.getFile(this.path);
+            f.Name = name;
+            this.path = f.Path;
+        }
+        return this;
+    },
+
     //获取扩展名
     getExtensionName: function(path){
         return this.fso.GetExtensionName(path || this.path);

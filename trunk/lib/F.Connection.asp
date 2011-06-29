@@ -155,6 +155,7 @@ F.Connection.prototype = {
     //返回记录集的表格html
     getHtmlTable: function(rs, opt){
         opt = opt || {};
+        var cols = opt.cols || [];
         if(typeof rs == 'string'){
             rs = this.execute(rs);
         }
@@ -170,12 +171,15 @@ F.Connection.prototype = {
         for(var i=0;i<fields.length;i++){
             html.push('<th>', fields[i], '</th>\n');
         }
+        for(var i=0; i<cols.length; i++){
+            html.push('<th>', cols[i].th, '</th>\n');
+        }
         html.push('</tr>\n');
-        var rowIndex = 0, fieldsLength = fields.length;
+        var rowIndex = 0, fieldsLength = fields.length, temp = {}, i;
         while(!rs.Eof){
             rowIndex ++;
             html.push('<tr>');
-            for (var i=0; i<fieldsLength; i++) {
+            for (i=0; i<fieldsLength; i++) {
                 var value = rs(fields[i]).Value;
                 switch(typeof value){
                 case 'object':
@@ -200,6 +204,11 @@ F.Connection.prototype = {
                     break;
                 }
                 html.push('<td>',value, '</td>\n');
+                temp[fields[i]] = value;
+            }
+            for(i=0; i<cols.length; i++){
+                html.push('<td>', typeof cols[i]['td'] === 'function' ?
+                    cols[i]['td'](temp) : cols[i]['td'], '</td>\n');
             }
             html.push('</tr>\n');
             if(rowIndex > 999){
@@ -240,6 +249,48 @@ F.Connection.prototype = {
         f.forEachLine(function(sql){
             sql && conn.execute(sql.replace(/__RN__/g, '\n'));
         });
+    },
+
+    //获取ado数据类型对应的字符描述
+    getTypeString: function(adoType, flags){
+        var map = {
+            11 : 'BOOLEAN',
+            128 : 'BINARY',
+            129 : 'CHAR',
+            130 : 'CHAR',
+            131 : 'DECIMAL',
+            133 : 'DATETIME',
+            134 : 'DATETIME',
+            135 : 'DATETIME',
+            137 : 'DATETIME',
+            139 : 'DECIMAL',
+            14 : 'DECIMAL',
+            16 : 'TINYINT',
+            17 : 'SMALLINT',
+            18 : 'SMALLINT',
+            19 : 'INTEGER',
+            200 : 'CHAR',
+            201 : 'TEXT',
+            202 : 'CHAR',
+            203 : 'TEXT',
+            20 : 'INTEGER',
+            21 : 'INTEGER',
+            2 : 'SMALLINT',
+            3 : 'INTEGER',
+            4 : 'REAL',
+            5 : 'FLOAT',
+            64 : 'DATETIME',
+            6 : 'FLOAT',
+            7 : 'DATETIME'
+        };
+        var t = map[adoType];
+        //针对access的特殊处理
+        if(t === 'CHAR' && flags === 234){
+            t = 'TEXT';
+        }else if(t === 'INTEGER' && flags === 90){
+            t = 'AUTOINCREMENT';
+        }
+        return t || 'TEXT';
     }
 };
 
