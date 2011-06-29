@@ -8,13 +8,15 @@
  */
 (function($){
     $.fn.coder = function(opt){
-        opt = $.extend({}, {
+        opt = $.extend(true, {}, {
             expandtab : true,    // 是否将tab转化为空格
             tabstop : 4,         // tab键对应的空格数
             cursorHolder : '^!', // 光标占位符
             fileType : 'html',   // 默认为html
             snippets : {},       // 默认没有任何代码片段
-            autoindent: true     // 是否自动缩进
+            autoindent: true,    // 是否自动缩进
+            keyHandler : {},     // 扩展编辑器按键响应函数
+            rangeHandler: {}     // 扩展选区按键响应
         }, opt);
 
         var $this = this;
@@ -22,7 +24,8 @@
         var CODER_KEY = 'WIFENG_CN_CODER', coder_data;
 
         //用于修改配置
-        if(coder_data = $this.data(CODER_KEY)){
+        coder_data = $this.data(CODER_KEY)
+        if(coder_data){
             $this.data(CODER_KEY, $.extend(coder_data, opt))
             return $this;
         }else{
@@ -403,6 +406,8 @@
                 return false;
             }
         };
+        $.extend(keyHandler, opt.keyHandler);
+        $.extend(rangeHandler, opt.rangeHandler);
 
         return $this.keydown(function(e){
             var action = getActionName(e);

@@ -1,5 +1,5 @@
 body,div,ol,ul,li,dl,dt,dd,h1,h2,h3,button,p,pre,form{margin:0;padding:0;}
-body,pre{font-size:14px;font-family:"Microsoft YaHei",arial}
+body,pre{font-size:14px;font-family:arial}
 div,ul{zoom:1;}
 img{border:none;vertical-align:middle;}
 a{text-decoration:none;color:#2F305F;}
@@ -9,7 +9,7 @@ li{list-style:none;}
 
 input{font-size:18px;line-height:22px;}
 dl{margin-top:10px;border:1px solid #dceaf7;}
-dt{line-height:35px;font-size:18px;padding-left:10px;color:#2F305F;
+dt{line-height:35px;font-size:18px;padding-left:10px;color:#2F305F;font-family:"Microsoft YaHei";
     background:url(bg.gif) 0 -257px repeat-x;margin:0 1px;font-weight:bold;}
 dd{border-top:none;padding:0 10px 10px 10px;line-height:1.6em;}
 dd pre{border:1px solid silver;padding:3px;margin:5px 0;color:#100;
@@ -26,10 +26,10 @@ dd pre{border:1px solid silver;padding:3px;margin:5px 0;color:#100;
 @media only screen and (max-device-width: 480px) {
     #page{width:460px;}
 }
-#head{position:relative;text-align:right;height:70px;}
+#head{position:relative;text-align:right;min-height:70px;padding-left:160px;clear:both;}
 #logo{position:absolute;top:10px;left:0;background:#fff;}
 
-.btn{height:26px;padding-top:5px;}
+.btn{height:26px;padding-top:5px;font-family:"Microsoft YaHei";}
 .btn li{background:url(btn.gif);float:right;height:26px;line-height:26px;
     margin-right:5px;padding-left:5px;cursor:pointer;overflow:hidden;}
 .btn li a{display:block;padding-right:5px;background:url(btn.gif) right top;}
@@ -102,4 +102,9 @@ textarea.content{height:500px;font-size:14px;line-height:18px;}
 .adoc_index_h4{margin-left:4em;list-style-type:disc;}
 .adoc_index_h5{margin-left:5em;list-style-type:circle;}
 .adoc_index_h6{margin-left:6em;list-style-type:square;}
+
+.comment ul li{list-style:decimal inside;background:#eee;padding:3px;margin:5px 0;line-height:1.8em;border-radius:4px}
+.comment li.just{background:#ffc;}
+.comment li span{float:right;margin-left:5px;color:#999;}
+#commentc_error{display:none;margin-bottom:10px;background:#fff;color:red;padding:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;}
 

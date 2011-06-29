@@ -1,4 +1,4 @@
-<%
+﻿<%
 
 F.namespace('F.config');
 

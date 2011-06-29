@@ -10,5 +10,27 @@
         {$post.content}
     </dd>
 </dl>
+<dl>
+    <dt>评论</dt>
+    <dd class="comment">
+        <input type="hidden" id="commentc_id" name="id" value="{$post.id}" />
+        大名: <input class="user" id="commentc_name" type="text" maxlength="20" name="name" value="">
+        <br>内容:
+        <textarea id="commentc_content" name="commentc_content" maxlength="500" name="content" rows="8" cols="50"></textarea>
+        <br>
+        <input id="commentc_btn" type="button" value="评论">
+        <span class="red" id="commentc_error">注意检查您的大名，评论至少10个字符，但不要多于500个</span>
+        <ul id="commentc_list">
+            {foreach $comments as $c}
+            <li>
+            <a name="c{$c.id}"></a>
+            <span>{new Date($c.time*1000).toISOString()}</span>
+            <b>{F.encodeHTML($c.author)}</b>说：{F.encodeHTML($c.content).replace(/\n+/g, '<br>')}
+            </li>
+            {/foreach}
+        </ul>
+    </dd>
+</dl>
+<script src="js/comment.js" type="text/javascript"></script>
 {include file="template/blog/page_end.html"}
 
