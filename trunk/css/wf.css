@@ -11,6 +11,8 @@ input{font-size:18px;line-height:22px;}
 dl{border:1px solid #ddd;background:#fff;margin:10px 5px 0 5px;border-radius:3px;}
 dt{line-height:35px;font-size:18px;padding-left:10px;color:#2F305F;
     font-family:"Microsoft YaHei";margin:1px;font-weight:bold;
+    text-shadow: rgba(50, 50, 50, .3) 1px 1px 1px;
+    background: -moz-linear-gradient(top, #ccc, #fff);
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#ccc), to(#fff));
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#ffffff'); 
 }
