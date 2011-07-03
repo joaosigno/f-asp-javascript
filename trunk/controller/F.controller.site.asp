@@ -1,5 +1,5 @@
 ﻿<%
-DEBUG_MODE = 1;
+//DEBUG_MODE = 1;
 //博客
 F.controller.site = F.controller.blog = {
     _db: function(){

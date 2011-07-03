@@ -253,6 +253,12 @@ F.execute = function(path){
         debug(arguments, e);
     }
 };
+%>
+<%(function(){%>
+<!--#include file="thirdparty/bs.asp"-->
+<%
+F.bs = BS;
+})();
 
 // vim:ft=javascript
 %>

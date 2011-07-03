@@ -8,18 +8,23 @@
         <script src="js/jquery.js" type="text/javascript"></script>
     </head>
     <body>
+        <div id="top"></div>
         <div id="page">
             <div id="head">
                 <a id="logo" href="/?r=blog"><img src="css/logo.gif" alt="WIFENG.CN" /></a>
-                <ul class="btn">
+                <ul>
+                    <li class="{if $is_home}on{/if}"><a href="/?r=blog">首页</a></li>
+                    {if $is_view}<li class="on"><a href="#">查看</a></li>{/if}
+                    {if $is_add}<li class="on"><a href="#">添加</a></li>{/if}
+                </ul>
+                <ul>
+                    <li><a href="/js/coder.html">代码编辑器</a></li>
                     {if !$is_login}
                     <li><a href="/?r=admin&a=login">登录</a></li>
                     {/if}
-                    <li><a href="/js/coder.html">代码编辑器</a></li>
                 </ul>
-                <ul class="btn">
+                <ul>
                     {if $is_login}
-                    <li><a href="/?r=admin&a=logout">退出</a></li>
                     <li><a href="/?r=admin&a=add">添加文章</a></li>
                     <li><a href="/?r=admin&a=file">文件管理</a></li>
                     <li><a href="/?r=admin&a=comment">评论管理</a></li>
@@ -27,18 +32,8 @@
                     <li><a href="/?r=admin&a=xml">导出XML</a></li>
                     <li><a href="/?r=admin&a=sql">导出SQL</a></li>
                     <li><a href="/?r=admin&a=removecache">清空缓存</a></li>
+                    <li><a href="/?r=admin&a=logout">退出</a></li>
                     {/if}
                 </ul>
                 <div class="clear"></div>
-            </div>
-            <div id="nav">
-                <div class="rl">
-                    <div class="rr">
-                        <ul>
-                            <li class="{if $is_home}on{/if}"><a href="/?r=blog">首页</a></li>
-                            {if $is_view}<li class="on"><a href="#">查看</a></li>{/if}
-                            {if $is_add}<li class="on"><a href="#">添加</a></li>{/if}
-                        </ul>
-                    </div>
-                </div>
             </div>
