@@ -128,7 +128,7 @@ F.controller.admin = {
     xml: function(){
         var db = this._db();
         var model = db.model('posts');
-        var name = new Date().format('YYYY-MM-DD_hh-mm-ss') + '.xml'
+        var name = F.date.format(new Date(),'yyyy-MM-dd_HH-mm-ss') + '.xml'
         model.exportXml(name);
         db.close();
         echo('导出成功， 文件名为：<a href="' + name + '">' + name + '</a>');
@@ -138,7 +138,7 @@ F.controller.admin = {
     sql: function(){
         var db = this._db();
         db.tableNames().forEach(function(v){
-            var name = v + new Date().format('_YYYY-MM-DD_hh-mm-ss') + '.sql';
+            var name = v + F.date.format(new Date(), '_yyyy-MM-dd_HH-mm-ss') + '.sql';
             db.model(v).exportSql(name);
             echo('<p>导出表"'+v+'"成功， 文件名为：<a href="' + name + '">' + name + '</a>');
         });

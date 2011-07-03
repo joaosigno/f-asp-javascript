@@ -24,7 +24,7 @@
             {foreach $comments as $c}
             <li>
             <a name="c{$c.id}"></a>
-            <span>{new Date($c.time*1000).toISOString()}</span>
+            <span>{F.date.toISOString(new Date($c.time*1000))}</span>
             <b>{F.encodeHTML($c.author)}</b>说：{F.encodeHTML($c.content).replace(/\n+/g, '<br>')}
             </li>
             {/foreach}
