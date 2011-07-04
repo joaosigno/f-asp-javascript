@@ -11,11 +11,13 @@ F.controller.site = F.controller.blog = {
     },
 
     _init: function(){
+        assign('is_login', F.User.isLogin());
         assign('is_home', ACTION === 'index');
         assign('is_view', ACTION === 'view');
         assign('is_add', ACTION === 'add');
         assign('is_edit', ACTION === 'edit');
-        assign('is_login', F.User.isLogin());
+        assign('is_file', ACTION === 'file');
+        assign('is_comment', ACTION === 'comment');
     },
 
     _TEXT_TYPE:{

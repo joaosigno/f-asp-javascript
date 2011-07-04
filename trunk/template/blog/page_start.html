@@ -14,8 +14,6 @@
                 <a id="logo" href="/?r=blog"><img src="css/logo.gif" alt="WIFENG.CN" /></a>
                 <ul>
                     <li class="{if $is_home}on{/if}"><a href="/?r=blog">首页</a></li>
-                    {if $is_view}<li class="on"><a href="#">查看</a></li>{/if}
-                    {if $is_add}<li class="on"><a href="#">添加</a></li>{/if}
                 </ul>
                 <ul>
                     <li><a href="/js/coder.html">代码编辑器</a></li>
@@ -25,9 +23,9 @@
                 </ul>
                 <ul>
                     {if $is_login}
-                    <li><a href="/?r=admin&a=add">添加文章</a></li>
-                    <li><a href="/?r=admin&a=file">文件管理</a></li>
-                    <li><a href="/?r=admin&a=comment">评论管理</a></li>
+                    <li{if $is_add} class="on"{/if}><a href="/?r=admin&a=add">添加文章</a></li>
+                    <li{if $is_file} class="on"{/if}><a href="/?r=admin&a=file">文件管理</a></li>
+                    <li{if $is_comment} class="on"{/if}><a href="/?r=admin&a=comment">评论管理</a></li>
                     <li><a href="/?r=admin&a=repair">修复数据库</a></li>
                     <li><a href="/?r=admin&a=xml">导出XML</a></li>
                     <li><a href="/?r=admin&a=sql">导出SQL</a></li>
