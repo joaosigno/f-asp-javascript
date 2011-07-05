@@ -12,6 +12,7 @@ F.controller.site = F.controller.blog = {
 
     _init: function(){
         assign('is_login', F.User.isLogin());
+        assign('is_loginpage', ACTION === 'login');
         assign('is_home', ACTION === 'index');
         assign('is_view', ACTION === 'view');
         assign('is_add', ACTION === 'add');
