@@ -14,15 +14,12 @@
                 <a id="logo" href="/?r=blog"><img src="css/logo.gif" alt="WIFENG.CN" /></a>
                 <ul>
                     <li class="{if $is_home}on{/if}"><a href="/?r=blog">首页</a></li>
-                </ul>
-                <ul>
-                    <li><a href="/js/coder.html">代码编辑器</a></li>
                     {if !$is_login}
-                    <li><a href="/?r=admin&a=login">登录</a></li>
+                    <li class="a-login{if $is_loginpage} on{/if}"><a href="/?r=admin&a=login">登录</a></li>
                     {/if}
                 </ul>
+                {if $is_login}
                 <ul>
-                    {if $is_login}
                     <li{if $is_add} class="on"{/if}><a href="/?r=admin&a=add">添加文章</a></li>
                     <li{if $is_file} class="on"{/if}><a href="/?r=admin&a=file">文件管理</a></li>
                     <li{if $is_comment} class="on"{/if}><a href="/?r=admin&a=comment">评论管理</a></li>
@@ -31,7 +28,7 @@
                     <li><a href="/?r=admin&a=sql">导出SQL</a></li>
                     <li><a href="/?r=admin&a=removecache">清空缓存</a></li>
                     <li><a href="/?r=admin&a=logout">退出</a></li>
-                    {/if}
                 </ul>
+                {/if}
                 <div class="clear"></div>
             </div>
