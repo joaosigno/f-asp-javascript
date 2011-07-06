@@ -30,7 +30,7 @@ dd pre{border:1px solid silver;padding:3px;margin:5px 0;color:#100;
 #page{_width:960px;max-width:960px;min-width:460px;margin:-37px auto 0 auto;padding:0 5px;}
 #head{position:relative;text-align:right;clear:both;color:#fff;}
 #logo{float:left;margin-right:20px;}
-#logo img{height:35px;width:105px;}
+#logo img{height:35px;width:99px;}
 
 #head ul{height:36px;padding-top:5px;font-family:"Microsoft YaHei";}
 #head li{background:#333;float:left;height:26px;line-height:26px;border-radius:3px;
@@ -41,7 +41,7 @@ dd pre{border:1px solid silver;padding:3px;margin:5px 0;color:#100;
 #head li.a-login{position:absolute;right:0;}
 #head li a:hover{text-decoration:none;color:#ddd;}
 
-#foot{text-align:center;padding:30px 0;color:#7777CC;}
+#foot{text-align:center;padding:30px 0;color:#7777CC;font:12px arial;}
 #foot span{font-size:10px;color:#ddd;}
 
 input.title, textarea.content{width:99%;font-family:Consolas, Monaco, "Courier New", Courier;}
