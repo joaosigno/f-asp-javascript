@@ -5,15 +5,14 @@ F.Folder = function(path){
     if(F.isString(path)){
         this.setPath(path);
     }
-    if(!F.Folder.fso){
-        F.Folder.fso = new ActiveXObject("Scripting.FileSystemObject");
-    }
-    this.fso = F.Folder.fso;
 };
-F.Folder.fso = null;
-
 
 F.Folder.prototype = {
+    //获取fso
+    fso: function(){
+        return F.fso();
+    },
+
     //设置路径
     setPath: function(path){
         this.path = (path.indexOf(':') > -1) ? path : Server.MapPath(path);
@@ -27,13 +26,13 @@ F.Folder.prototype = {
 
     //是否存在
     exist: function(path){
-        return this.fso.FolderExists(path || this.path);
+        return this.fso().FolderExists(path || this.path);
     },
 
     //获取文件夹的相关信息
     getInfo: function(){
-        var f = this.fso.GetFolder(this.path);
-        var fso = this.fso, path = this.path;
+        var f = this.fso().GetFolder(this.path);
+        var fso = this.fso(), path = this.path;
         return {
             'AbsolutePathName' : fso.GetAbsolutePathName(path),
             'DateCreated' : new Date(f.DateCreated),
@@ -59,7 +58,7 @@ F.Folder.prototype = {
         do{
             tmp += '\\' + fs.shift();
             if(!this.exist(tmp)){
-                this.fso.CreateFolder(tmp);
+                this.fso().CreateFolder(tmp);
             }
         }while(fs.length && fs[0])
         return this;
@@ -68,7 +67,7 @@ F.Folder.prototype = {
     //删除路径
     remove: function(path){
         if(this.exist(path)){
-            this.fso.DeleteFolder(this.path || path);
+            this.fso().DeleteFolder(this.path || path);
         }
         return this;
     },
@@ -86,14 +85,14 @@ F.Folder.prototype = {
 
     //获取文件夹名称
     getFolderName: function(){
-        return this.fso.GetFolder(this.path).Name;
+        return this.fso().GetFolder(this.path).Name;
     },
 
     //改名
     rename: function(name){
         name = name.trim();
         if(name!=='' && this.getFolderName()!==name){
-            var f = this.fso.GetFolder(this.path);
+            var f = this.fso().GetFolder(this.path);
             f.Name = name;
             this.path = f.Path;
         }
@@ -103,7 +102,7 @@ F.Folder.prototype = {
     //获取所有的文件
     map: function(enumForder, filter, fn){
         var res = [];
-        var fo = this.fso.GetFolder(this.path);
+        var fo = this.fso().GetFolder(this.path);
         var fc = new Enumerator(enumForder(fo));
         if(filter instanceof RegExp){
             var re = filter;

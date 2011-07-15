@@ -1,20 +1,18 @@
-{include file="template/blog/page_start.html"}
-{literal}
+<!--#include file="page_start.html"-->
 <style type="text/css">
     .post-list li span{font-size:12px;margin-left:10px;color:#999;}
 </style>
-{/literal}
 <dl>
     <dt>所有文章</dt>
     <dd>
         <ul class="post-list">
-            {foreach $list as $i=>$p}
+            <% for(var i=0; i<list.length; i++){ %>
             <li>
-                {if $is_login}<a href="/?r=admin&a=edit&id={$p.id}">[编辑]</a>{/if}
-                <a href="/?r=blog&a=view&id={$p.id}">{$p.title}</a>
-                <span>{F.date.toISOString(new Date($p.create_time*1000))}</span>
+                <%if (is_login){ %><a href="/?r=admin&a=edit&id=<%=list[i].id%>">[编辑]</a><% } %>
+                <a href="/?r=blog&a=view&id=<%=list[i].id%>"><%=list[i].title%></a>
+                <span><%=F.date.toISOString(new Date(list[i].create_time*1000))%></span>
             </li>
-            {/foreach}
+            <% } %>
         </ul>
     </dd>
 </dl>
@@ -44,5 +42,5 @@
         </div>
     </dd>
 </dl>
-{include file="template/blog/page_end.html"}
+<!--#include file="page_end.html"-->
 

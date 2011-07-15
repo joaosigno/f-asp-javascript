@@ -1,11 +1,10 @@
-{include file="template/blog/page_start.html"}
+<!--#include file="page_start.html"-->
 <dl>
     <dt>评论管理</dt>
     <dd class="comment">
-        {$comment_html}
+        <%=comment_html%>
     </dd>
 </dl>
-{literal}
 <style type="text/css">
     .comment table{width:100%;}
     .comment table td, .comment table th{border:1px solid #ddd;}
@@ -28,6 +27,4 @@
         });
     });
 </script>
-{/literal}
-{include file="template/blog/page_end.html"}
-
+<!--#include file="page_end.html"-->

@@ -1,19 +1,19 @@
-{include file="template/blog/page_start.html"}
+<!--#include file="page_start.html"-->
 <dl>
-    <dt>{$post.title}</dt>
+    <dt><%=post.title%></dt>
     <dd class="adoc">
-        {if $is_login}
+        <% if (is_login){ %>
         <div>
-            <a href="/?r=admin&a=edit&id={$post.id}">编辑</a>
+            <a href="/?r=admin&a=edit&id=<%=post.id%>">编辑</a>
         </div>
-        {/if}
-        {$post.content}
+        <% } %>
+        <%=post.content%>
     </dd>
 </dl>
 <dl>
     <dt>评论</dt>
     <dd class="comment">
-        <input type="hidden" id="commentc_id" name="id" value="{$post.id}" />
+        <input type="hidden" id="commentc_id" name="id" value="<%=post.id%>" />
         大名: <input class="user" id="commentc_name" type="text" maxlength="20" name="name" value="">
         <br>内容:
         <textarea id="commentc_content" name="commentc_content" maxlength="500" name="content" rows="8" cols="50"></textarea>
@@ -21,16 +21,15 @@
         <input id="commentc_btn" type="button" value="评论">
         <span class="red" id="commentc_error">注意检查您的大名，评论至少10个字符，但不要多于500个</span>
         <ul id="commentc_list">
-            {foreach $comments as $c}
+            <% for(var i=0; i<comments.length; i++){ %>
             <li>
-            <a name="c{$c.id}"></a>
-            <span>{F.date.toISOString(new Date($c.time*1000))}</span>
-            <b>{F.encodeHTML($c.author)}</b>说：{F.encodeHTML($c.content).replace(/\n+/g, '<br>')}
+            <a name="c<%=comments[i].id%>"></a>
+            <span><%=F.date.toISOString(new Date(comments[i].time*1000))%></span>
+            <b><%=F.encodeHTML(comments[i].author)%></b>说：<%=F.encodeHTML(comments[i].content).replace(/\n+/g, '<br>')%>
             </li>
-            {/foreach}
+            <% } %>
         </ul>
     </dd>
 </dl>
 <script src="js/comment.js" type="text/javascript"></script>
-{include file="template/blog/page_end.html"}
-
+<!--#include file="page_end.html"-->

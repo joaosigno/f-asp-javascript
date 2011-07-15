@@ -18,7 +18,7 @@ F.MsJetConnection.prototype.repair = function(){
         this.close();
     }
     var engine = new ActiveXObject("JRO.JetEngine");
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var fso = F.fso();
     var mdb = this._dataSource;
     var tmp = mdb + ".tmp";
     var bak = mdb + ".bak";

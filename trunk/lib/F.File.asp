@@ -5,19 +5,18 @@ F.File = function(filename){
     if(F.isString(filename)){
         this.setPath(filename);
     }
-    if(!F.File.fso){
-        F.File.fso = new ActiveXObject("Scripting.FileSystemObject");
-    }
-    this.fso = F.File.fso;
 };
 
-//全局变量，所有实例共用
-F.File.fso = null;
-
 F.File.prototype = {
+
+    //获取fso
+    fso: function(){
+        return F.fso();
+    },
+
     //取得文件名
     getFileName: function(){
-        return this.fso.GetFileName(this.path);
+        return this.fso().GetFileName(this.path);
     },
 
     //文件类型
@@ -89,12 +88,12 @@ F.File.prototype = {
 
     //返回文件的字节数
     getSize: function(){
-        return this.fso.GetFile(this.path).Size;
+        return this.fso().GetFile(this.path).Size;
     },
 
     //返回文件的相关信息
     getInfo: function(){
-        var f = this.fso.GetFile(this.path);
+        var f = this.fso().GetFile(this.path);
         return {
             'DateCreated' : new Date(f.DateCreated),
             'DateLastAccessed' : new Date(f.DateLastAccessed),
@@ -190,7 +189,7 @@ F.File.prototype = {
         if(!folder.exist()){
             folder.create();
         }
-        var f = this.fso.CreateTextFile(this.path, true);
+        var f = this.fso().CreateTextFile(this.path, true);
         if(content !== undefined){
             f.WriteLine(content);
         }
@@ -259,12 +258,12 @@ F.File.prototype = {
 
     //是否存在
     exist: function(path){
-        return this.fso.FileExists(path || this.path);
+        return this.fso().FileExists(path || this.path);
     },
 
     //删除文件，如果传入path，path最后可以是通配符
     remove: function(path){
-        this.fso.DeleteFile(path || this.path, true);
+        this.fso().DeleteFile(path || this.path, true);
         return this;
     },
 
@@ -272,7 +271,7 @@ F.File.prototype = {
     rename: function(name){
         name = name.trim();
         if(name!=='' && this.getFileName()!==name){
-            var f = this.fso.getFile(this.path);
+            var f = this.fso().getFile(this.path);
             f.Name = name;
             this.path = f.Path;
         }
@@ -281,7 +280,7 @@ F.File.prototype = {
 
     //获取扩展名
     getExtensionName: function(path){
-        return this.fso.GetExtensionName(path || this.path);
+        return this.fso().GetExtensionName(path || this.path);
     },
 
     dispose: function(){

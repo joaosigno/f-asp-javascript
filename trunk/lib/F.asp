@@ -260,5 +260,58 @@ F.execute = function(path){
 F.bs = BS;
 })();
 
+//获得fso组件
+F.fso = function(){
+    return F.__fso || (F.__fso = new ActiveXObject('Scripting.FileSystemObject'));
+};
+
+//处理include模板
+F.tpl = function(path){
+    var reg = /<\!\-\-#include +file="([^"]+)"\-\->/;
+    var file = new F.File(path);
+    var text = file.getText();
+    var re = [], i = j = 0, temp, f;
+    while((i=text.search(reg))!== -1){
+        temp = text.match(reg);
+        f = temp[1];
+        temp = temp[0];
+        re.push(text.slice(0, i));
+        text = text.slice(i+temp.length);
+        re.push(F.tpl(file.getFolder().path + '/' + f));
+    }
+    re.push(text);
+    return re.join('');
+};
+
+//模板
+F.fetch = function(path, data){
+    var key = 'F_TPL_' + path;
+    var tmpl = F.cache.get(key);
+    if(!tmpl){
+        var str = F.tpl(path);
+        var c = {
+            evaluate    : new RegExp('<' + '%([\\s\\S]+?)%' + '>', 'g'),
+            interpolate : new RegExp('<' + '%=([\\s\\S]+?)%'+ '>', 'g')
+        };
+        tmpl = 'var x=[],print=function(){x.push.apply(x,arguments);};' +
+          'with(obj||{}){x.push(\'' +
+          str.replace(/\\/g, '\\\\')
+             .replace(/'/g, "\\'")
+             .replace(c.interpolate, function(match, code) {
+               return "'," + code.replace(/\\'/g, "'") + ",'";
+             })
+             .replace(c.evaluate || null, function(match, code) {
+               return "');" + code.replace(/\\'/g, "'")
+                                  .replace(/[\r\n\t]/g, ' ') + "x.push('";
+             })
+             .replace(/\r/g, '\\r')
+             .replace(/\n/g, '\\n')
+             .replace(/\t/g, '\\t')
+             + "');}return x.join('');";
+        F.cache.set(key, tmpl);
+    }
+    return data ? (new Function('obj', tmpl))(data) : tmpl;
+};
+
 // vim:ft=javascript
 %>
