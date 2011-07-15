@@ -19,7 +19,6 @@ var START = new Date().getTime();
 <!--#include file="F.File.asp"-->
 <!--#include file="F.Folder.asp"-->
 <!--#include file="F.Model.asp"-->
-<!--#include file="F.Smarty.asp"-->
 <!--#include file="F.Upload.asp"-->
 <!--#include file="F.User.asp"-->
 <!--#include file="F.Xml.asp"-->
@@ -82,17 +81,10 @@ var assign = function(key, value){
 };
 
 var display = function(tpl, data){
-    var str = new F.File(tpl).getText();
-    var html = str.fetch(data || __template_data);
+    var html = F.fetch(tpl, data || __template_data);
     echo(html);
     return html;
 };
-
-//为smarty插件配置include
-F.Smarty.prototype.getTemplate = function(file){
-    return new F.File(file).getText();
-};
-
 
 // vim:ft=javascript
 %>

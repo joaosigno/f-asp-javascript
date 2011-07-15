@@ -1,10 +1,10 @@
-{include file="template/blog/page_start.html"}
+<!--#include file="page_start.html"-->
 <dl>
     <dt>用户登录</dt>
     <dd>
-        {if $error}
-            <div class="error">{$error}</div>
-        {/if}
+        <% if (error){ %>
+        <div class="error"><%=error%></div>
+        <% } %>
         <form action="/?r=admin&a=login" method="post">
             用户名：<input style="width:200px;" type="text" name="name" value="" /><br>
             密　码：<input style="width:200px;" type="password" name="password" value="" />
@@ -13,4 +13,4 @@
         </form>
     </dd>
 </dl>
-{include file="template/blog/page_end.html"}
+<!--#include file="page_end.html"-->
