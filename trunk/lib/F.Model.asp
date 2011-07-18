@@ -176,11 +176,14 @@ F.Model.prototype = {
 
     //导出到xml文件
     exportXml: function(fileName){
-        var file = new F.File(fileName).create();
+        var file = new F.File(fileName);
         var step = 50, i = 0;
         var fields = this.fieldsType();
         var rs = this.findAll('', '*', '', '', true);
         var xml = ['<' , this.tableName , '>\n'];
+        if(!file.exist()){
+            file.create();
+        }
         while(!rs.Eof){
             i++;
             xml.push('\t<item>\n');
@@ -202,11 +205,14 @@ F.Model.prototype = {
 
     //导出sql
     exportSql: function(fileName){
-        var file = new F.File(fileName).create();
+        var file = new F.File(fileName);
         var step = 50, i = 0;
         var fields = this.fieldsType();
         var rs = this.findAll('', '*', '', '', true);
         var createSql = this.getCreateSql();
+        if(!file.exist()){
+            file.create();
+        }
         file.appendText(createSql + '\n');
         var sql = [];
         while(!rs.Eof){

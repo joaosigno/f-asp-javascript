@@ -54,25 +54,31 @@ F.controller.admin = {
 
     add: function(){
         var me = this;
+        assign('draft', null);
         if(F.isGet()){
             display('template/blog/add.html');
         }else{
             var title = F.post('title');
             var content = F.post('content');
             if(!title || !content){
-                die('缺少标题或内容');
+                error('缺少标题或内容');
             }else{
-                var db = this._db();
-                var model = db.model('posts');
-                model.insert({
-                    title       : title,
-                    content     : content,
-                    author      : 'WiFeng',
-                    create_time : parseInt(new Date().getTime()/1000),
-                    text_type   : me._TEXT_TYPE.MAKRDOWN
-                });
-                var post = model.find('','id','id desc');
-                db.close();
+                try{
+                    var db = this._db();
+                    var model = db.model('posts');
+                    model.insert({
+                        title       : title,
+                        content     : content,
+                        author      : 'WiFeng',
+                        create_time : parseInt(new Date().getTime()/1000),
+                        text_type   : me._TEXT_TYPE.MAKRDOWN
+                    });
+                    var post = model.find('','id','id desc');
+                    db.model('drafts').del('id=' + F.post('draft_id'));
+                    db.close();
+                }catch(e){
+                    error('数据库错误:' + e.message);
+                }
                 F.cache.remove();
                 F.go('/?r=blog&a=view&id=' + post.id);
             }
@@ -83,17 +89,19 @@ F.controller.admin = {
     edit: function(){
         var id = parseInt(F.get('id'));
         if(isNaN(id)){
-            die('参数无效。');
+            error('参数无效。');
         }
         var db = this._db();
         var model = db.model('posts');
         var post = model.find('id=' + id);
         if(!post){
-            die('没有这篇文章');
+            error('没有这篇文章');
         }
         if(F.isGet()){
-            assign('post', post);
+            var draft = db.model('drafts').find('id=' + id);
+            assign('draft', draft);
             db.close();
+            assign('post', post);
             display('template/blog/add.html');
         }else{
             delete post.id;//因为id是主键，所以不能更新此字段
@@ -104,8 +112,13 @@ F.controller.admin = {
                 post.view_number = 0;
             }
             post.text_type = this._TEXT_TYPE.MAKRDOWN;
-            model.update('id=' + id, post);
-            db.close();
+            try{
+                model.update('id=' + id, post);
+                db.model('drafts').del('id=' + id);
+                db.close();
+            }catch(e){
+                error('数据库错误:' + e.message);
+            }
             F.cache.remove();
             F.go('/?r=blog&a=view&id=' + id);
         }
@@ -118,7 +131,7 @@ F.controller.admin = {
         try{
             this._db().repair();
         }catch(e){
-            die(e.message);
+            error(e.message);
         }
         echo('<p>修复数据完成');
         echo('<p>压缩后字节数：' + f.getSize());
@@ -131,17 +144,22 @@ F.controller.admin = {
         var name = F.date.format(new Date(),'yyyy-MM-dd_HH-mm-ss') + '.xml'
         model.exportXml(name);
         db.close();
-        echo('导出成功， 文件名为：<a href="' + name + '">' + name + '</a>');
+        var f = new F.File(name);
+        f.send();
+        f.remove();
     },
 
     //导出sql文件
     sql: function(){
         var db = this._db();
+        var name = F.date.format(new Date(), 'yyyy-MM-dd_HH-mm-ss') + '.sql';
         db.tableNames().forEach(function(v){
-            var name = v + F.date.format(new Date(), '_yyyy-MM-dd_HH-mm-ss') + '.sql';
             db.model(v).exportSql(name);
-            echo('<p>导出表"'+v+'"成功， 文件名为：<a href="' + name + '">' + name + '</a>');
         });
+        db.close();
+        var f = new F.File(name);
+        f.send();
+        f.remove();
     },
 
     //清空缓存
@@ -266,8 +284,94 @@ F.controller.admin = {
         db.close();
     },
 
+    autosave: function(){
+        var id = parseInt(F.post('id'));
+        if(!F.isPost() || isNaN(id)){
+            die({"status":1, "msg":"无效访问"});
+        }
+        var title = F.post('title');
+        var content = F.post('content');
+        var re = {status:0};
+        try{
+            var m = this._db().model('drafts');
+            var time = F.date.unixTime();
+            if(m.find('id=' + id)){
+                m.update('id=' + id, {
+                    title:title,
+                    content:content,
+                    update_time:time
+                });
+            }else{
+                m.insert({
+                    id : id,
+                    title: title,
+                    content: content,
+                    update_time:time
+                });
+            }
+            this._db().close();
+        }catch(e){
+            re.status = 1;
+            re.msg = e.message;
+            die(re);
+        }
+        echo(re);
+    },
+
+    draftlist: function(){
+        var list;
+        var db = this._db();
+        var m = db.model('drafts');
+        list = m.findAll('id>' + 1e8, 'id,title,update_time');
+        list.forEach(function(v){
+            v.update_time = F.date.toISOString(F.date.fromUnixTime(v.update_time));
+        });
+        db.close();
+        echo(list);
+    },
+
+    draft: function(){
+        var db = this._db();
+        var m = db.model('drafts');
+        var d = m.find('id=' + F.get('id'));
+        db.close();
+        echo(d);
+    },
+
+    runsql: function(){
+        var db = this._db();
+        if(F.isPost()){
+            var sql = F.post('sql').trim();
+            var re;
+            try{
+                if(/^select/.test(sql)){
+                    re = db.getJson(sql);
+                }else{
+                    db.execute(sql);
+                    re = sql + ' --- ' + 'ok!'
+                }
+            }catch(e){
+                re = e.message;
+            }finally{
+                db.close();
+            }
+            echo(F.json.stringify(re));
+        }else{
+            assign('page_title', '执行sql');
+            var tables = db.tableNames();
+            assign('tables', tables);
+            var sqls = [];
+            tables.forEach(function(t){
+                sqls.push(db.model(t).getCreateSql());
+            });
+            assign('sqls', sqls);
+            db.close();
+            display('template/blog/sql.html');
+        }
+    },
+
     x: function(){
-        die('ok');
+        error('ok');
         var me = this;
         var db = this._db();
         var model = db.model('posts');

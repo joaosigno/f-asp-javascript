@@ -1,14 +1,28 @@
 <!--#include file="page_start.html"-->
-<dl>
+<link rel="stylesheet" href="css/jquery.ui.css" type="text/css" />
+<style type="text/css">
+    .draft_list{font-size:12px;line-height:18px;}
+    .draft_list div{white-space:nowrap;cursor:pointer;}
+    .draft_list div:hover{background:#eee;}
+    .draft_list b{display:inline-block;width:170px;}
+</style>
+<dl style="position:relative;">
     <dt><% if(is_add){ %>添加文章<%} else {%>编辑文章<% } %></dt>
     <dd>
+        <div class="as_tip" style="position:absolute;right:10px;top:5px;color:#888;font-size:12px;"></div>
         <form action="/?r=admin&a=<% if(is_add){ %>add<% }else{ %>edit&id=<%=post.id%><% } %>" method="post">
-            <div style="margin-bottom:10px;"><input type="text" name="title" class="title" value="<% if(is_edit){ %><%=F.encodeHTML(post.title)%><%}%>" /></div>
-            <div><textarea name="content" class="content"><% if(is_edit){ %><%=F.encodeHTML(post.content)%><%}%></textarea></div>
+            <div style="margin-bottom:10px;">
+                <input type="text" name="title" class="title" id="post_title" value="<% if(is_edit){ %><%=F.encodeHTML(post.title)%><%}%>" />
+            </div>
+            <div>
+                <textarea name="content" class="content" id="post_content"><% if(is_edit){ %><%=F.encodeHTML(post.content)%><%}%></textarea>
+            </div>
+            <input type="hidden" id="draft_id_input" name="draft_id" value="<%if (is_add){%><%=F.date.unixTime()%><%}else{%><%=(post.id)%><%}%>" />
             <div style="margin-top:10px;"><input type="submit" value="提交" /></div>
         </form>
     </dd>
 </dl>
+<script src="js/jquery.ui.js" type="text/javascript"></script>
 <script src="js/jquery.selection.js" type="text/javascript"></script>
 <script src="js/jquery.coder.js" type="text/javascript"></script>
 <script src="js/jquery.snippets.html.js" type="text/javascript"></script>
@@ -16,7 +30,183 @@
 <script src="js/jquery.dictionary.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function(){
-        $('.content').coder({fileType:'html'});
+        var as = new AutoSave({
+            url: '/?r=admin&a=autosave',
+            id: <%if (is_add){%><%=F.date.unixTime()%><%}else{%><%=(post.id)%><%}%>,
+            tip: '.as_tip',
+            title: '#post_title',
+            content: '#post_content'
+        });
+        as.startTimer();
+        var draft_btn = $('.draft_btn')
+        var da = $('<div class="draft_list">');
+        draft_btn.click(function(){
+            listDraft(da, as);
+            da.dialog({
+                title:'请选择草稿', 
+                width:400, 
+                open: function(){
+                    as.clearTimer();
+                },
+                close:function(){
+                    as.startTimer();
+                }
+            });
+            return false;
+        });
+        $('.content').coder({fileType:'html',keyHandler: {
+            'Ctrl-S': function($this, selection){
+                as.check();
+                return false;
+            }
+        }});
+
+        <%if (draft){%>
+        var confirm_da = $('<div>').html('本文有上次编辑但未发布的草稿，恢复吗？').dialog({
+            buttons:{
+                '立刻恢复': function(){
+                    var d = $(this);
+                    d.html('loading...');
+                    loadDraft(<%=draft.id%>, as, function(){
+                        d.dialog('close');
+                    });
+                },
+                '否': function(){
+                    $(this).dialog('close');
+                }
+            },
+
+            open: function(){
+                as.clearTimer();
+            },
+
+            close: function(){
+                as.startTimer();
+            }
+        });
+        <%}%>
     });
+
+    function listDraft(da, as){
+        da.html('loading...');
+        $.get('/?r=admin&a=draftlist', function(data){
+            da.empty();
+            if(data.length === 0){
+                da.html('没有草稿 :)');
+                return;
+            }
+            $.each(data, function(i, d){
+                da.append($('<div>').html('<b data-id="'+d.id+'">' + d.update_time + '</b>' + d.title));
+            });
+            da.find('div').click(function(){
+                var t = $(this);
+                var id = t.find('b').attr('data-id');
+                da.html('loading...');
+                loadDraft(id, as, function(){
+                    da.dialog('close');
+                });
+            });
+        }, 'json');
+    }
+
+    function loadDraft(id, as, fn){
+        $.get('/?r=admin&a=draft&id=' + id, function(data){
+            $('#post_title').val(data.title);
+            $('#post_content').val(data.content);
+            $('#draft_id_input').val(data.id);
+            fn && fn();
+            as.setId(data.id);
+        }, 'json');
+    }
+
+    function AutoSave(opt){
+        opt = opt || {};
+        this.id = opt.id;
+        this.tip = $(opt.tip);
+        this.title = $(opt.title);
+        this.content = $(opt.content);
+        this.saveUrl = opt.url;
+        this.inter = 30; //30秒
+        this.delayTime = 3; //3秒
+        this.lastTitle = this.title.val();
+        this.lastContent = this.content.val();
+        this.timer = null;
+
+        this.setId = function(id){
+            this.id = id;
+        };
+
+        this.getTimeString = function(){
+            var date = new Date();
+            return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+        };
+
+        this.check = function(){
+            this.clearTimer();
+            var title = this.title.val();
+            var value = this.content.val();
+            if(value !== this.lastContent || title !== this.lastTitle){
+                this.lastTitle = title;
+                this.lastContent = value;
+                this.save();
+            }else{
+                this.startTimer();
+            }
+        };
+
+        this.save = function(){
+            var _this = this;
+            _this.tip.html('开始保存...');
+            $.ajax({
+                url : _this.saveUrl,
+                cache : false,
+                timeout : 10 * 1000,
+                dataType : 'json',
+                type : 'POST',
+                data : {
+                    id: _this.id,
+                    title: _this.lastTitle,
+                    content: _this.lastContent
+                },
+                success: function(data){
+                    if(data.status === 0){
+                        _this.tip.html('草稿保存成功@' + _this.getTimeString());
+                    }else{
+                        _this.tip.html('草稿保存失败@' + _this.getTimeString() + ',信息：' + data.msg);
+                    }
+                    window.setTimeout(function(){
+                        _this.startTimer();
+                    }, 1000 * _this.delayTime);
+                },
+                error: function(){
+                    _this.tip.html('保存时发生错误，稍候自动继续');
+                    window.setTimeout(function(){
+                        _this.save();
+                    }, 1000 * _this.delayTime);
+                }
+            });
+        };
+
+        this.update = function(delay){
+            this.tip.html(delay + '秒后保存草稿@' + this.getTimeString());
+        };
+
+        this.startTimer = function(){
+            var _this = this, t = -1;
+            window.clearInterval(this.timer);
+            this.timer = window.setInterval(function(){
+                t ++;
+                _this.update(_this.inter - t);
+                if(t >= _this.inter){
+                    _this.check();
+                }
+            }, 1000);
+        };
+
+        this.clearTimer = function(){
+            this.tip.html('zzz...');
+            window.clearInterval(this.timer);
+        };
+    }
 </script>
 <!--#include file="page_end.html"-->

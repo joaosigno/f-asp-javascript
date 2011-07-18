@@ -53,7 +53,7 @@ F.Connection.prototype = {
             return this._connection.Execute(sql);
         }catch(e){
             e.sql = sql;
-            debug(arguments, e);
+            throw e;
         }
     },
 
@@ -256,8 +256,8 @@ F.Connection.prototype = {
         var map = {
             11 : 'BOOLEAN',
             128 : 'BINARY',
-            129 : 'CHAR',
-            130 : 'CHAR',
+            129 : 'VARCHAR',
+            130 : 'VARCHAR',
             131 : 'DECIMAL',
             133 : 'DATETIME',
             134 : 'DATETIME',
@@ -269,9 +269,9 @@ F.Connection.prototype = {
             17 : 'SMALLINT',
             18 : 'SMALLINT',
             19 : 'INTEGER',
-            200 : 'CHAR',
+            200 : 'VARCHAR',
             201 : 'TEXT',
-            202 : 'CHAR',
+            202 : 'VARCHAR',
             203 : 'TEXT',
             20 : 'INTEGER',
             21 : 'INTEGER',
@@ -285,7 +285,7 @@ F.Connection.prototype = {
         };
         var t = map[adoType];
         //针对access的特殊处理
-        if(t === 'CHAR' && flags === 234){
+        if(t === 'VARCHAR' && flags === 234){
             t = 'TEXT';
         }else if(t === 'INTEGER' && flags === 90){
             t = 'AUTOINCREMENT';

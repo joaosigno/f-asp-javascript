@@ -36,10 +36,13 @@ var __template_data = {
     page_title : '标题'
 };
 
-
 var echo = function(){
     for(var i=0, l=arguments.length; i<l; i++){
-        Response.Write(arguments[i]);
+        if(typeof arguments[i] === 'object'){
+            Response.Write(F.json.stringify(arguments[i]));
+        }else{
+            Response.Write(arguments[i]);
+        }
     }
 };
 
@@ -55,7 +58,18 @@ var log = function(s){
     Response.Flush();
 };
 
+var error = function(msg){
+    assign('page_title', '错误');
+    assign('error', msg || '未知错误');
+    display('template/blog/error.html');
+    die();
+};
+
 var debug = function(a, e){
+    if(arguments.length === 1){
+        e = a;
+        a = debug;
+    }
     if(DEBUG_MODE){
         var err;
         if(e instanceof Error){
@@ -67,12 +81,14 @@ var debug = function(a, e){
                 err['message'+i] = s[i]
             }
         }
-        echo('<div style="color:#d00;"><b>DEBUG:</b>');
-        echo('<pre>' + F.encodeHTML(a.callee.toString()) + '</pre>');
-        log(err)
-        echo('</div>');
+        var msg = '';
+        msg += ('<div style="color:#d00;"><b>DEBUG:</b>');
+        msg += ('<pre>' + F.encodeHTML(a.callee.toString()) + '</pre>');
+        msg += F.json.stringify(err);
+        msg += ('</div>');
+        error(msg);
     }else{
-        throw new Error('debug');
+        error();
     }
 };
 
@@ -81,7 +97,7 @@ var assign = function(key, value){
 };
 
 var display = function(tpl, data){
-    var html = F.fetch(tpl, data || __template_data);
+    var html = F.fetch(tpl, data || __template_data, {checkFile:true});
     echo(html);
     return html;
 };

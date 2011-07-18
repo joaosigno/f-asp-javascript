@@ -44,5 +44,17 @@ F.date.toISOString = function(date){
     return F.date.format(date, 'yyyy-MM-dd HH:mm:ss');
 };
 
+//unix时间戳
+F.date.unixTime = function(date){
+    date = date || new Date();
+    return Math.ceil(date.getTime()/1000);
+};
+
+//从unix时间戳中还原事件
+F.date.fromUnixTime = function(time){
+    time = parseInt(time);
+    return new Date(time * 1000);
+};
+
 // vim:ft=javascript
 %>

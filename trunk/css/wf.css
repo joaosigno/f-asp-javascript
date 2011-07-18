@@ -1,5 +1,5 @@
 ﻿body,div,ol,ul,li,dl,dt,dd,h1,h2,h3,button,p,pre,form{margin:0;padding:0;}
-body{font-size:14px;font-family:arial;background:#9ACACE;}
+body{font-size:14px;font-family:arial;background:#9ACACE;overflow-y:scroll;}
 ul{zoom:1;}
 img{border:none;vertical-align:middle;}
 a{text-decoration:none;color:#2F305F;}
@@ -8,7 +8,7 @@ a:hover{text-decoration:underline;color:red;}
 li{list-style:none;}
 
 input{font-size:18px;line-height:22px;}
-dl{border:1px solid #ddd;background:#fff;margin-top:10px;border-radius:3px;}
+dl{border:1px solid #ddd;background:#fff;margin-bottom:10px;border-radius:3px;}
 dt{line-height:35px;font-size:18px;padding-left:10px;color:#2F305F;
     font-family:"Microsoft YaHei";margin:1px;font-weight:bold;
     background: -moz-linear-gradient(top, #ccc, #fff);
@@ -22,19 +22,20 @@ dd pre{border:1px solid silver;padding:3px;margin:5px 0;color:#100;
     white-space: -o-pre-wrap;word-wrap: break-word;}
 
 .center{text-align:center;}
-.clear{height:0;clear:both;font-size:0;line-height:0;overflow:hidden;}
+.clear{clear:both;zoom:1;}
+.clear:after {visibility:hidden;display:block;font-size:0;content:" ";clear:both;height:0;}
 .error{font-size:12px;padding:3px;margin:5px 0;background:#FFF5FA;border:1px solid #F8B3D0;}
 .tip{font-size:12px;padding:3px;margin:5px 0;background:#FFFFF7;border:1px solid #FC0;}
 
 #top{background:#333;height:36px;border-bottom:1px solid #000;box-shadow:0 2px 5px #999;min-width:470px;}
 #page{_width:960px;max-width:960px;min-width:460px;margin:-37px auto 0 auto;padding:0 5px;}
-#head{position:relative;text-align:right;clear:both;color:#fff;}
+#head{position:relative;text-align:right;clear:both;color:#fff;margin-bottom:8px;}
 #logo{float:left;margin-right:20px;}
 #logo img{height:35px;width:99px;}
 
-#head ul{height:36px;padding-top:5px;font-family:"Microsoft YaHei";}
+#head ul{font-family:"Microsoft YaHei";padding-top:5px;}
 #head li{background:#333;float:left;height:26px;line-height:26px;border-radius:3px;
-         margin-right:3px;padding-left:5px;cursor:pointer;overflow:hidden;}
+         margin:0 0 3px 3px;padding-left:5px;cursor:pointer;overflow:hidden;}
 #head li a{display:block;padding-right:5px;color:#aaa;}
 #head li a sup{color:red;font-weight:bold;}
 #head li.on{background:#666;}

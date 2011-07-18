@@ -18,6 +18,7 @@ F.controller.site = F.controller.blog = {
         assign('is_edit', ACTION === 'edit');
         assign('is_file', ACTION === 'file');
         assign('is_comment', ACTION === 'comment');
+        assign('is_runsql', ACTION === 'runsql');
     },
 
     _TEXT_TYPE:{
@@ -29,19 +30,12 @@ F.controller.site = F.controller.blog = {
     //首页
     index: function(){
         var db = this._db();
-        //log(db.model('posts').fieldsType());die()
-        //db.model('posts').exportSql('posts.sql');die()
         var m = db.model('posts');
         var list = F.cache.get('list');
-        if(list){
-            list = F.json.parse(list);
-        }else{
-            var db = this._db();
-            var model = db.model('posts');
-            list = model.findAll('', 'id, title,create_time', 'id desc');
-            db.close();
-            F.cache.set('list', F.json.stringify(list));
-        }
+        var db = this._db();
+        var model = db.model('posts');
+        list = model.findAll('', 'id, title,create_time', 'id desc');
+        db.close();
         assign('list', list);
         assign('page_title', 'WiFeng Blog');
         display('template/blog/index.html');
@@ -51,17 +45,11 @@ F.controller.site = F.controller.blog = {
     view: function(){
         var id = parseInt(F.get('id')) || 0;
         var post = F.cache.get(id);
-        var db;
-        if(post){
-            post = F.json.parse(post);
-        }else{
-            db = this._db();
-            var model = db.model('posts');
-            post = model.find('id='+id);
-            if(!post){
-                die('no post');
-            }
-            F.cache.set(id, F.json.stringify(post));
+        var db = this._db();
+        var model = db.model('posts');
+        post = model.find('id='+id);
+        if(!post){
+            error('没有找到文章');
         }
 
         //如果是markdown语法
