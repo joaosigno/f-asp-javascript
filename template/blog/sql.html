@@ -1,0 +1,25 @@
+<!--#include file="page_start.html"-->
+<dl>
+    <dt>执行sql</dt>
+    <dd>
+        <div><textarea class="content" id="sql" style="height:100px;"></textarea></div>
+        <div style="margin:5px 0;"><input type="button" id="runsql" value="提交" /></div>
+        <div><textarea class="content" id="sql_resulut" style="height:300px;"></textarea></div>
+        <div>所有表：<%=tables.join(' ')%></div>
+        <div>创建语句：<%=sqls.join('<br>')%></div>
+    </dd>
+</dl>
+<script type="text/javascript">
+    $(function(){
+        var btn = $('#runsql');
+        btn.click(function(){
+            $.post('/?r=admin&a=runsql',{
+                sql : $('#sql').val()    
+            }, function(data){
+                $('#sql_resulut').val(data);       
+            }, 'text');
+        });
+    });
+</script>
+<!--#include file="page_end.html"-->
+

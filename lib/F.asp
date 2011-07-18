@@ -266,29 +266,49 @@ F.fso = function(){
 };
 
 //处理include模板
-F.tpl = function(path){
+F.includeAll = function(path){
     var reg = /<\!\-\-#include +file="([^"]+)"\-\->/;
     var file = new F.File(path);
     var text = file.getText();
-    var re = [], i = j = 0, temp, f;
+    var re = [], paths = [file.path], i = j = 0, temp, f, p2, tp;
     while((i=text.search(reg))!== -1){
         temp = text.match(reg);
         f = temp[1];
         temp = temp[0];
         re.push(text.slice(0, i));
         text = text.slice(i+temp.length);
-        re.push(F.tpl(file.getFolder().path + '/' + f));
+        p2 = file.getFolder().path + '/' + f;
+        tp = F.includeAll(p2);
+        re.push(tp.text);
+        paths = paths.concat(tp.paths);
     }
     re.push(text);
-    return re.join('');
+    var r = {text: re.join(''), paths: paths, path: file.path};
+    return r;
 };
 
 //模板
-F.fetch = function(path, data){
+F.fetch = function(path, data, opt){
+    opt = opt || {};
     var key = 'F_TPL_' + path;
+    var tkey = 'T' + key;
     var tmpl = F.cache.get(key);
+    if(opt.checkFile && tmpl){
+        var t = F.cache.get(tkey);
+        var f = new F.File();
+        if(t.length){
+            t = F.json.parse(t);
+            for(var p in t){
+                if(f.setPath(p).getDateLastModified().getTime() !== t[p]){
+                    tmpl = null;
+                    break;
+                }
+            }
+        }
+    }
     if(!tmpl){
-        var str = F.tpl(path);
+        var tp = F.includeAll(path);
+        var str = tp.text;
         var c = {
             evaluate    : new RegExp('<' + '%([\\s\\S]+?)%' + '>', 'g'),
             interpolate : new RegExp('<' + '%=([\\s\\S]+?)%'+ '>', 'g')
@@ -308,9 +328,23 @@ F.fetch = function(path, data){
              .replace(/\n/g, '\\n')
              .replace(/\t/g, '\\t')
              + "');}return x.join('');";
+        var t = {}, f = new F.File();
+        tp.paths.forEach(function(p){
+            t[p] = f.setPath(p).getDateLastModified().getTime();
+        });
+        F.cache.set(tkey, F.json.stringify(t));
         F.cache.set(key, tmpl);
     }
-    return data ? (new Function('obj', tmpl))(data) : tmpl;
+    return data ? (function(){
+        var html = '';
+        try{
+            html = (new Function('obj', tmpl))(data);
+        }catch(e){
+            die(e.message);
+        }finally{
+            return html;
+        }
+    })() : tmpl;
 };
 
 // vim:ft=javascript
